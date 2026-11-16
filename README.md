@@ -20,6 +20,6 @@ python process.py
 
 ## Before using it for a real shop
 
-- Replace the placeholder WhatsApp number `91XXXXXXXXXX` and the shop name in `src/index.html`.
+- Change the WhatsApp number (`"wa"`, country code 91 plus 10 digits) and the shop name in `src/index.html`.
 - Set `"url"` in the shop data to the public address of the menu, so the QR code points to it.
 - Have the owner check every price and a native speaker read the Hindi.
