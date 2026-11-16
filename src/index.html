@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Angaar Pizza Menu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef9f3;--card:#fff;--ink:#16302a;--mut:#56706a;--mint:#c4ecd9;--mint2:#1f8a66;--red:#d8412f;--line:#d3e9de;--veg:#1e9e4a;--non:#c62f2f;--wood:#e7d3b3;--onmint:#fff;--shadow:0 6px 20px rgba(20,60,45,.10)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a17;--card:#17251f;--ink:#e9f5ef;--mut:#9db5ab;--mint:#1f4336;--mint2:#63d1a6;--line:#263b33;--wood:#3a2c20;--shadow:0 6px 20px rgba(0,0,0,.45);--onmint:#0f1a17;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1a17;--card:#17251f;--ink:#e9f5ef;--mut:#9db5ab;--mint:#1f4336;--mint2:#63d1a6;--line:#263b33;--wood:#3a2c20;--shadow:0 6px 20px rgba(0,0,0,.45);--onmint:#0f1a17;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Nunito,"Noto Sans Devanagari",system-ui,sans-serif;padding-bottom:96px}
+h1,h2,h3{font-family:"Baloo 2","Noto Sans Devanagari",sans-serif;margin:0;line-height:1.15}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--mint2);outline-offset:2px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:25;background:var(--bg)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1100px;margin:auto;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:center;gap:10px}
+.brand{flex:1;min-width:0}
+.brand h1{font-size:1.35rem;color:var(--red);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand p{margin:0;font-size:.8rem;color:var(--mut)}
+.hb{min-width:44px;height:44px;padding:0 12px;border-radius:14px;background:var(--card);border:1px solid var(--line);font-weight:800}
+.tabs{max-width:1100px;margin:auto;padding-bottom:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;gap:8px}
+.tab{flex:1;height:46px;border-radius:14px;background:var(--mint);font-weight:800}
+.tab[aria-selected=true]{background:var(--red);color:#fff}
+main{max-width:1100px;margin:auto;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-weight:600;font-size:.9rem}
+.pill[aria-pressed=true]{background:var(--mint2);border-color:var(--mint2);color:var(--onmint)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:16px}
+.card{background:var(--card);border-radius:24px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.card .pz{width:66%;margin:0 auto 4px}
+.card h3{font-size:1.2rem;display:flex;align-items:center;gap:8px}
+.desc{margin:0;color:var(--mut);font-size:.9rem;flex:1}
+.mark{flex:none;width:16px;height:16px;border:2px solid var(--veg);border-radius:3px;display:inline-grid;place-items:center}
+.mark::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--veg)}
+.mark.n{border-color:var(--non)}.mark.n::after{background:var(--non)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.price{font-size:1.25rem;font-family:"Baloo 2",sans-serif}
+.btn{min-height:44px;padding:8px 20px;border-radius:14px;background:var(--red);color:#fff;font-weight:800}
+.btn.ghost{background:var(--mint);color:var(--ink)}
+.btn.wa{background:#128c4a;width:100%;display:block;text-align:center;text-decoration:none;line-height:28px}
+
+/* pizza */
+.pz{position:relative;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#e6b56c 0 60%,#d89a4c 86%,#b9742f 94%,#9a5c22 100%);box-shadow:0 8px 14px rgba(0,0,0,.22);transition:filter .8s}
+.pz .sauce{position:absolute;inset:8.5%;border-radius:50%;background:var(--sauce,#c8321f);transition:background .5s;box-shadow:inset 0 0 8px rgba(0,0,0,.25)}
+.pz .cheese{position:absolute;inset:11%;border-radius:50%;background:
+ radial-gradient(circle at 28% 30%,#fff3c4 0 9%,transparent 19%),radial-gradient(circle at 68% 24%,#ffeeb0 0 8%,transparent 17%),
+ radial-gradient(circle at 76% 64%,#fff3c4 0 10%,transparent 20%),radial-gradient(circle at 32% 74%,#ffeeb0 0 9%,transparent 18%),
+ radial-gradient(circle at 52% 48%,#fff0b8 0 10%,transparent 21%),rgba(250,212,116,.7)}
+.pz .tops{position:absolute;inset:0}
+.pc{position:absolute;width:var(--w);transform:translate(-50%,-50%) rotate(var(--r)) scaleX(var(--f));filter:drop-shadow(1px 2px 1.5px rgba(0,0,0,.4))}
+.pc.drop{animation:drop .6s cubic-bezier(.3,1.4,.5,1) backwards}
+@keyframes drop{from{transform:translate(-50%,-150%) rotate(var(--r)) scaleX(var(--f)) scale(2);opacity:0}55%{opacity:1}}
+.sh-disc{aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.28) 0 12%,transparent 30%),radial-gradient(circle,transparent 62%,rgba(0,0,0,.22) 100%),var(--c)}
+.sh-ring{aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,transparent 0 40%,var(--c) 44% 66%,transparent 70%)}
+.sh-strip{aspect-ratio:4.2;border-radius:45%;background:linear-gradient(rgba(255,255,255,.3),transparent 55%),var(--c)}
+.sh-cube{aspect-ratio:1;border-radius:20%;background:linear-gradient(135deg,rgba(255,255,255,.3),transparent 55%,rgba(0,0,0,.18)),var(--c)}
+.sh-leaf{aspect-ratio:1.6;border-radius:0 75% 0 75%;background:linear-gradient(120deg,rgba(255,255,255,.22),transparent 50%,rgba(0,0,0,.2)),var(--c)}
+.sh-dot{aspect-ratio:1;border-radius:50%;background:var(--c)}
+.sh-crumb{aspect-ratio:1.2;border-radius:42% 58% 50% 46%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),transparent 50%),var(--c)}
+.pz.baked{filter:saturate(1.2) brightness(.86) sepia(.28) contrast(1.08)}
+.flame{position:absolute;inset:-12%;border-radius:50%;pointer-events:none;opacity:0;background:radial-gradient(circle,rgba(255,196,60,.0) 40%,rgba(255,120,20,.75) 62%,rgba(255,60,0,0) 76%)}
+.flame.go{animation:flame 1.4s ease-out}
+@keyframes flame{15%{opacity:1;transform:scale(1.04)}45%{opacity:.7;transform:scale(.98)}70%{opacity:.9;transform:scale(1.06)}to{opacity:0;transform:scale(1.15)}}
+
+/* photo layers */
+img.pz{display:block;height:auto}
+.pz.ph{background:none;box-shadow:none;border-radius:0;filter:drop-shadow(0 8px 10px rgba(0,0,0,.28))}
+.card .pz{cursor:zoom-in;transition:transform .3s}
+.card .pz:hover{transform:scale(1.04) rotate(3deg)}
+.pz.photo{background:none;box-shadow:none}
+.pz.photo img.sauce{inset:0;width:100%;height:100%;background:none;box-shadow:none;border-radius:0;filter:drop-shadow(0 8px 10px rgba(0,0,0,.3))}
+.pz.photo img.cheese{inset:0;width:100%;height:100%;background:none;border-radius:0;opacity:.82}
+.pz.photo .tint{position:absolute;inset:13%;border-radius:50%;background:var(--sauce);mix-blend-mode:soft-light;opacity:.75;transition:background .5s}
+img.pc{height:auto;-webkit-user-drag:none;user-select:none}
+
+/* hover zoom */
+#zoom{background:none;box-shadow:none;padding:0;border-radius:0;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;place-items:center;overflow:hidden}
+#zoom[open]{display:grid}
+#zoom::backdrop{background:rgba(8,20,16,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.zwrap{position:relative;display:grid;justify-items:center;gap:14px;padding:16px}
+.zstage{position:relative;width:min(74vw,52dvh);aspect-ratio:1}
+.zspin{position:absolute;inset:0;animation:spin 70s linear infinite}
+.zspin .pz{width:100%;cursor:default}
+.zspin .tops{position:absolute;inset:0}
+.ring{position:absolute;inset:0;border-radius:50%;border:3px solid #f2c14e;opacity:0;pointer-events:none}
+.ring.go{animation:ring 1.1s ease-out both}
+@keyframes ring{from{opacity:.9;transform:scale(.9)}to{opacity:0;transform:scale(1.5)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.zinfo{background:var(--card);border-radius:20px;padding:14px 18px;width:min(92vw,380px);box-shadow:var(--shadow)}
+.zinfo p{margin:4px 0 10px;color:var(--mut);font-size:.92rem}
+.zinfo.up{animation:up .45s cubic-bezier(.2,.9,.3,1) backwards}
+@keyframes up{from{opacity:0;transform:translateY(30px)}}
+.zx{position:absolute;top:4px;right:4px;z-index:2}
+
+/* full screen / TV fallback layout */
+.tv .brand p,.tv .desc{display:none}
+.tv main,.tv .bar,.tv .tabs{max-width:none}
+.tv .grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.tv .card .pz{width:82%}
+
+/* builder */
+.build{display:grid;gap:16px}
+.stage{position:sticky;top:122px;z-index:10;background:var(--bg);padding:6px 0 10px;text-align:center}
+.board{width:min(64vw,300px);aspect-ratio:1;margin:auto;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,var(--wood) 60%,color-mix(in srgb,var(--wood) 80%,#000) 100%);box-shadow:var(--shadow);position:relative}
+.board .pz{width:var(--sz,84%);transition:width .5s cubic-bezier(.3,1.5,.5,1),filter .8s}
+.total{font:800 1.5rem "Baloo 2",sans-serif;margin-top:6px}
+.acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.panel{background:var(--card);border-radius:24px;padding:16px;box-shadow:var(--shadow);display:grid;gap:14px}
+.panel h3{font-size:1rem;margin-bottom:6px}
+.hint{margin:0;color:var(--mut);font-size:.88rem}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tp{position:relative}
+.chip{width:100%;min-height:52px;display:flex;align-items:center;gap:8px;text-align:left;padding:6px 34px 6px 8px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);font-size:.86rem;font-weight:600;line-height:1.2;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.chip small{display:block;color:var(--mut);font-weight:400}
+.chip.on{border-color:var(--mint2);background:var(--mint)}
+.smp{flex:none;width:34px;height:34px;display:grid;place-items:center;touch-action:none;cursor:grab}
+.smp>*{width:var(--sw)}
+.cnt{position:absolute;top:-6px;left:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--red);color:#fff;font-size:.75rem;font-weight:800;display:grid;place-items:center}
+.minus{position:absolute;right:4px;top:50%;translate:0 -50%;width:30px;height:44px;font-size:1.3rem;font-weight:800;color:var(--red)}
+.ghost-pc{position:fixed;z-index:99;width:54px;height:54px;margin:-27px 0 0 -27px;display:grid;place-items:center;pointer-events:none;filter:drop-shadow(0 8px 8px rgba(0,0,0,.4))}
+.ghost-pc>*{width:var(--gw)}
+@media(min-width:820px){.build{grid-template-columns:400px 1fr;align-items:start}.stage{top:130px}.board{width:360px}}
+
+/* cart + dialogs */
+.cartbar{position:fixed;left:0;right:0;bottom:0;z-index:30;padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:linear-gradient(transparent,var(--bg) 30%)}
+.cartbar button{width:100%;max-width:560px;margin:auto;display:flex;justify-content:space-between;min-height:54px;align-items:center;border-radius:18px;background:var(--red);color:#fff;font-weight:800;padding:0 20px;box-shadow:var(--shadow)}
+dialog{border:0;border-radius:24px;padding:20px;width:min(94vw,460px);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(8,20,16,.55);backdrop-filter:blur(3px)}
+.dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.x{width:44px;height:44px;border-radius:50%;background:var(--mint);font-size:1.2rem;font-weight:800}
+.line{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.line>div:first-child{flex:1;min-width:0}
+.line small{display:block;color:var(--mut);font-size:.8rem}
+.qty{display:flex;align-items:center;gap:4px}
+.qty button{width:40px;height:40px;border-radius:12px;background:var(--mint);font-weight:800;font-size:1.1rem}
+.sum{display:flex;justify-content:space-between;font:800 1.3rem "Baloo 2",sans-serif;margin:14px 0}
+#qrbox{background:#fff;padding:16px;border-radius:16px;display:grid;place-items:center}
+#qrbox svg{width:100%;max-width:260px;height:auto}
+.toast{position:fixed;left:50%;bottom:84px;translate:-50% 20px;z-index:40;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:800;opacity:0;transition:.3s;pointer-events:none}
+.toast.show{opacity:1;translate:-50% 0}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand"><h1 id="shop"></h1><p id="tag"></p></div>
+    <button class="hb" id="langBtn" aria-label="Switch language"></button>
+    <button class="hb" id="qrBtn">QR</button>
+    <button class="hb" id="fsBtn">⛶</button>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tabMenu" aria-selected="true"></button>
+    <button class="tab" role="tab" id="tabBuild" aria-selected="false"></button>
+  </div>
+</header>
+
+<main>
+  <section id="menuView">
+    <div class="pills" id="filters" role="group"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="buildView" class="build" hidden>
+    <div class="stage">
+      <div class="board" id="board">
+        <div class="pz" id="bpz"><i class="sauce"></i><i class="cheese"></i><div class="tops"></div><i class="flame"></i></div>
+      </div>
+      <div class="total" id="bTotal" aria-live="polite"></div>
+      <div class="acts">
+        <button class="btn ghost" id="bakeBtn"></button>
+        <button class="btn ghost" id="resetBtn"></button>
+        <button class="btn" id="bAdd"></button>
+      </div>
+    </div>
+    <div class="panel">
+      <div><h3 id="hSize"></h3><div class="pills" id="bSizes"></div></div>
+      <div><h3 id="hSauce"></h3><div class="pills" id="bSauces"></div></div>
+      <p class="hint" id="hint"></p>
+      <div id="bTops"></div>
+    </div>
+  </section>
+</main>
+
+<div class="cartbar" id="cartbar" hidden><button id="cartBtn"><span id="cbL"></span><span id="cbR"></span></button></div>
+
+<dialog id="cartDlg" aria-labelledby="cartH">
+  <div class="dh"><h2 id="cartH"></h2><button class="x" data-close aria-label="Close">×</button></div>
+  <div id="lines"></div>
+  <div class="sum"><span id="sumL"></span><span id="sumR"></span></div>
+  <a class="btn wa" id="waBtn" target="_blank" rel="noopener"></a>
+</dialog>
+
+<dialog id="qrDlg" aria-labelledby="qrH">
+  <div class="dh"><h2 id="qrH"></h2><button class="x" data-close aria-label="Close">×</button></div>
+  <div id="qrbox"></div>
+</dialog>
+
+<dialog id="zoom" aria-labelledby="zName"><div class="zwrap" id="zwrap">
+  <button class="x zx" data-close aria-label="Close">×</button>
+  <div class="zstage" id="zstage"><i class="ring"></i><i class="ring"></i><div class="zspin" id="zspin"></div></div>
+  <div class="zinfo" id="zinfo"><h2 id="zName"></h2><p id="zDesc"></p><div class="row"><b class="price" id="zPrice"></b><button class="btn" id="zAdd"></button></div></div>
+</div></dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script id="data" type="application/json">
+{
+"shop":{"name_en":"Angaar Pizza Co.","name_hi":"अंगार पिज़्ज़ा कं.","tag_en":"Fire-baked, made to order","tag_hi":"आँच पर सिका, ऑर्डर पर ताज़ा","wa":"91XXXXXXXXXX","url":"https://claude.ai/artifact/CxPoJsNiHJURNtmS7khfi3"},
+"base":249,
+"sizes":[{"en":"Regular","hi":"रेगुलर","mult":1,"sz":68},{"en":"Medium","hi":"मीडियम","mult":1.45,"sz":84},{"en":"Large","hi":"लार्ज","mult":1.9,"sz":100}],
+"sauces":[
+ {"id":"tomato","en":"Tomato","hi":"टमाटर","extra":0,"color":"#c8321f"},
+ {"id":"pesto","en":"Pesto","hi":"पेस्तो","extra":30,"color":"#6f9a3a"},
+ {"id":"garlic","en":"Garlic white","hi":"गार्लिक व्हाइट","extra":20,"color":"#f1e6c8"},
+ {"id":"bbq","en":"Smoky BBQ","hi":"स्मोकी बीबीक्यू","extra":30,"color":"#5a2a1a"}],
+"pizzas":[
+ {"id":"margherita","name_en":"Margherita","name_hi":"मार्गरीटा","desc_en":"Tomato sauce, fresh mozzarella and basil","desc_hi":"टमाटर सॉस, ताज़ा मोज़रेला और तुलसी","veg":true,"price":299,"sauce":"tomato","toppings":["basil","cherry-tomato"]},
+ {"id":"farmhouse","name_en":"Farmhouse","name_hi":"फार्महाउस","desc_en":"Mushroom, capsicum, onion, tomato and sweet corn","desc_hi":"मशरूम, शिमला मिर्च, प्याज़, टमाटर और स्वीट कॉर्न","veg":true,"price":429,"sauce":"tomato","toppings":["mushroom","green-capsicum","red-onion","tomato","sweet-corn"]},
+ {"id":"paneer-tikka","name_en":"Paneer Tikka","name_hi":"पनीर टिक्का","desc_en":"Tandoori paneer, onion, capsicum and jalapeno","desc_hi":"तंदूरी पनीर, प्याज़, शिमला मिर्च और हैलेपीनो","veg":true,"price":449,"sauce":"tomato","toppings":["tandoori-paneer","red-onion","green-capsicum","jalapeno"]},
+ {"id":"mexican-wave","name_en":"Mexican Wave","name_hi":"मैक्सिकन वेव","desc_en":"Jalapeno, sweet corn, black olives, onion and chili flakes","desc_hi":"हैलेपीनो, स्वीट कॉर्न, काले ऑलिव, प्याज़ और चिली फ्लेक्स","veg":true,"price":459,"sauce":"tomato","toppings":["jalapeno","sweet-corn","black-olives","red-onion","chili-flakes"]},
+ {"id":"pesto-garden","name_en":"Pesto Garden","name_hi":"पेस्तो गार्डन","desc_en":"Basil pesto, olives, mushroom and cherry tomato","desc_hi":"तुलसी पेस्तो, ऑलिव, मशरूम और चेरी टमाटर","veg":true,"price":479,"sauce":"pesto","toppings":["black-olives","mushroom","cherry-tomato","basil"]},
+ {"id":"pepperoni-feast","name_en":"Pepperoni Feast","name_hi":"पेपरोनी फीस्ट","desc_en":"Double pepperoni and extra mozzarella","desc_hi":"डबल पेपरोनी और ढेर सारा मोज़रेला","veg":false,"price":499,"sauce":"tomato","toppings":["pepperoni","pepperoni"]},
+ {"id":"chicken-fajita","name_en":"Chicken Fajita","name_hi":"चिकन फहीता","desc_en":"Grilled chicken, red and yellow capsicum and onion","desc_hi":"ग्रिल्ड चिकन, लाल-पीली शिमला मिर्च और प्याज़","veg":false,"price":489,"sauce":"tomato","toppings":["grilled-chicken","red-capsicum","yellow-capsicum","red-onion"]},
+ {"id":"bbq-chicken","name_en":"BBQ Chicken","name_hi":"बीबीक्यू चिकन","desc_en":"Smoky BBQ sauce, grilled chicken, onion and capsicum","desc_hi":"स्मोकी बीबीक्यू सॉस, ग्रिल्ड चिकन, प्याज़ और शिमला मिर्च","veg":false,"price":519,"sauce":"bbq","toppings":["grilled-chicken","red-onion","green-capsicum"]},
+ {"id":"nawab-special","name_en":"Nawab Special","name_hi":"नवाब स्पेशल","desc_en":"Chicken tikka, pepperoni, mushroom, olives and extra cheese","desc_hi":"चिकन टिक्का, पेपरोनी, मशरूम, ऑलिव और एक्स्ट्रा चीज़","veg":false,"price":579,"sauce":"tomato","toppings":["chicken-tikka","pepperoni","mushroom","black-olives"]}],
+"toppings":[
+ ["red-onion","Red onion","लाल प्याज़","veg",30,"ring","#a4447a"],
+ ["white-onion","White onion","सफ़ेद प्याज़","veg",30,"ring","#efe6d2"],
+ ["green-capsicum","Green capsicum","हरी शिमला मिर्च","veg",40,"strip","#3f9a3c"],
+ ["red-capsicum","Red capsicum","लाल शिमला मिर्च","veg",45,"strip","#d2362b"],
+ ["yellow-capsicum","Yellow capsicum","पीली शिमला मिर्च","veg",45,"strip","#f0bf2e"],
+ ["mushroom","Mushroom","मशरूम","veg",50,"disc","#cdb89b"],
+ ["black-olives","Black olives","काले ऑलिव","veg",45,"ring","#2a2326"],
+ ["green-olives","Green olives","हरे ऑलिव","veg",45,"ring","#7d8c2f"],
+ ["sweet-corn","Sweet corn","स्वीट कॉर्न","veg",40,"dot","#f6cf3c"],
+ ["tomato","Tomato","टमाटर","veg",35,"disc","#e2472f"],
+ ["cherry-tomato","Cherry tomato","चेरी टमाटर","veg",50,"disc","#d8281d"],
+ ["jalapeno","Jalapeno","हैलेपीनो","veg",45,"ring","#4f9a2e"],
+ ["paneer","Paneer","पनीर","veg",60,"cube","#f6efdc"],
+ ["tandoori-paneer","Tandoori paneer","तंदूरी पनीर","veg",75,"cube","#e08a3a"],
+ ["spinach","Spinach","पालक","veg",35,"leaf","#2f7a36"],
+ ["pineapple","Pineapple","अनानास","veg",50,"cube","#f4d04a"],
+ ["basil","Basil","तुलसी","veg",25,"leaf","#3d9440"],
+ ["broccoli","Broccoli","ब्रोकली","veg",55,"crumb","#3c8a3a"],
+ ["pepperoni","Pepperoni","पेपरोनी","nonveg",70,"disc","#b8321f"],
+ ["chicken-tikka","Chicken tikka","चिकन टिक्का","nonveg",80,"cube","#c9622c"],
+ ["grilled-chicken","Grilled chicken","ग्रिल्ड चिकन","nonveg",85,"strip","#d9a56b"],
+ ["chicken-sausage","Chicken sausage","चिकन सॉसेज","nonveg",75,"disc","#c98a6a"],
+ ["bacon","Crispy bacon","क्रिस्पी बेकन","nonveg",90,"strip","#a8402f"],
+ ["salami","Salami","सलामी","nonveg",85,"disc","#a5384a"],
+ ["mutton-keema","Mutton keema","मटन कीमा","nonveg",95,"crumb","#6e4630"],
+ ["prawns","Prawns","झींगा","nonveg",110,"leaf","#f3927a"],
+ ["extra-cheese","Extra cheese","एक्स्ट्रा चीज़","finisher",60,"crumb","#f8e08e"],
+ ["feta","Feta","फेटा","finisher",65,"crumb","#f7f4ea"],
+ ["chili-flakes","Chili flakes","चिली फ्लेक्स","finisher",15,"dot","#c22a1a"],
+ ["roasted-garlic","Roasted garlic","भुना लहसुन","finisher",40,"crumb","#e6c98a"]]
+}
+</script>
+<script id="assets" type="application/json">{}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const D=JSON.parse($('#data').textContent);
+const T=Object.fromEntries(D.toppings.map(a=>[a[0],{id:a[0],en:a[1],hi:a[2],group:a[3],price:a[4],shape:a[5],color:a[6]}]));
+const SAUCE=Object.fromEntries(D.sauces.map(s=>[s.id,s]));
+const W={disc:12,ring:12,strip:15,cube:8,leaf:11,dot:3.5,crumb:5.5};   // piece width, % of pizza
+const N={dot:12,crumb:9};                                              // pieces per layer (default 6)
+const MAX=3;
+const A=JSON.parse($('#assets').textContent),PH=!!A.cheese;            // photos, embedded by process.py
+// photo pieces: longest side as % of the pizza, and pieces per layer
+const SZ={'red-onion':17,'white-onion':17,'green-capsicum':20,'red-capsicum':20,'yellow-capsicum':20,mushroom:14,'black-olives':8,'green-olives':8,'sweet-corn':4.5,tomato:16,'cherry-tomato':9,jalapeno:9,paneer:9,'tandoori-paneer':10,spinach:15,pineapple:9,basil:14,broccoli:11,pepperoni:14,'chicken-tikka':11,'grilled-chicken':16,'chicken-sausage':11,bacon:17,salami:16,'mutton-keema':10,prawns:13,'extra-cheese':14,feta:9,'chili-flakes':9,'roasted-garlic':9};
+const NP={'sweet-corn':12,'black-olives':8,'green-olives':8,'chili-flakes':7,tomato:5,salami:5,bacon:5,'red-onion':5,'white-onion':5};
+const STR={
+ en:{menu:'Menu',build:'Make your own',all:'All',veg:'Veg',non:'Non-veg',add:'Add',cart:'Your order',total:'Total',wa:'Order on WhatsApp',view:'View order',item:'item',items:'items',qr:'Scan to open this menu',sauce:'Sauce',size:'Size',g_veg:'Veg toppings',g_nonveg:'Non-veg toppings',g_finisher:'Finishers',bake:'Bake',reset:'Start over',addc:'Add to order',custom:'Custom pizza',hint:'Tap a topping, or drag its picture onto the pizza. Up to 3 layers each.',noqr:'The QR code needs an internet connection the first time.',remove:'Remove one layer of',added:'Added to order',layer:'per layer',lang:'हिंदी',fs:'Full screen'},
+ hi:{menu:'मेन्यू',build:'अपना पिज़्ज़ा बनाओ',all:'सभी',veg:'वेज',non:'नॉन-वेज',add:'जोड़ें',cart:'आपका ऑर्डर',total:'कुल',wa:'WhatsApp पर ऑर्डर करें',view:'ऑर्डर देखें',item:'आइटम',items:'आइटम',qr:'मेन्यू खोलने के लिए स्कैन करें',sauce:'सॉस',size:'साइज़',g_veg:'वेज टॉपिंग',g_nonveg:'नॉन-वेज टॉपिंग',g_finisher:'फिनिशर',bake:'बेक करें',reset:'फिर से शुरू',addc:'ऑर्डर में जोड़ें',custom:'कस्टम पिज़्ज़ा',hint:'टॉपिंग पर टैप करें, या उसकी तस्वीर पिज़्ज़ा पर खींचें। हर टॉपिंग 3 बार तक।',noqr:'पहली बार QR कोड के लिए इंटरनेट चाहिए।',remove:'एक परत हटाएँ:',added:'ऑर्डर में जुड़ गया',layer:'हर परत',lang:'English',fs:'फ़ुल स्क्रीन'}};
+let lang='en';try{lang=localStorage.getItem('lang')||'en'}catch(e){}
+const t=k=>STR[lang][k];
+let filter='all',cart=[];const sel={};
+const B={size:1,sauce:'tomato',layers:{},pieces:[]};
+
+/* ---------- pizza drawing ---------- */
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let x=Math.imul(seed^seed>>>15,1|seed);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296}}
+const hash=s=>[...s].reduce((h,c)=>Math.imul(h,31)+c.charCodeAt(0)|0,7);
+// best-of-7: each new piece goes to the candidate spot farthest from existing pieces
+function place(count,existing,rnd){
+  const out=[];
+  for(let i=0;i<count;i++){
+    let best,bd=-1;
+    for(let c=0;c<7;c++){
+      const a=rnd()*6.283,d=Math.sqrt(rnd())*36,x=50+Math.cos(a)*d,y=50+Math.sin(a)*d;
+      const near=Math.min(99,...existing.concat(out).map(p=>Math.hypot(p.x-x,p.y-y)));
+      if(near>bd){bd=near;best={x,y}}
+    }
+    best.r=Math.round(rnd()*360);best.f=rnd()<.5?-1:1;out.push(best);
+  }
+  return out;
+}
+function shapeEl(tp){const e=document.createElement('span');e.className='sh-'+tp.shape;e.style.setProperty('--c',tp.color);return e}
+// a photo cut-out when we have one, otherwise the drawn shape; w = longest side in the unit the caller wants
+function pieceNode(tp,rnd,w,unit,prop){
+  const ps=A.pieces&&A.pieces[tp.id];
+  if(!ps||!ps.length){const e=shapeEl(tp);if(prop)e.style.setProperty(prop,(unit==='%'?W[tp.shape]:Math.min(w,W[tp.shape]*w/13))+unit);return e}
+  const p=ps[Math.floor(rnd()*ps.length)],e=new Image();e.src=p.u;e.alt='';e.draggable=false;
+  if(prop)e.style.setProperty(prop,(unit==='%'?SZ[tp.id]:w)*Math.min(1,p.a)+unit);return e;
+}
+const perLayer=tp=>PH?(NP[tp.id]||6):(N[tp.shape]||6);
+function mkPiece(tp,p,rnd=Math.random){const e=pieceNode(tp,rnd,0,'%','--w');e.classList.add('pc');e.style.cssText+=`;left:${p.x}%;top:${p.y}%;--r:${p.r}deg;--f:${p.f}`;return e}
+function drawPizza(el,sauce,tops,seed){
+  el.innerHTML='<i class="sauce"></i><i class="cheese"></i><div class="tops"></div>';
+  el.style.setProperty('--sauce',SAUCE[sauce].color);
+  const rnd=rng(seed),pts=[],box=el.lastChild;
+  tops.forEach(id=>{const tp=T[id];place(N[tp.shape]||5,pts,rnd).forEach(p=>{pts.push(p);box.append(mkPiece(tp,p,rnd))})});
+}
+
+/* ---------- menu ---------- */
+const price=(p,s)=>Math.round(p.price*D.sizes[s].mult);
+function renderMenu(){
+  $('#filters').innerHTML=['all','veg','non'].map(f=>`<button class="pill" aria-pressed="${f===filter}" data-f="${f}">${t(f)}</button>`).join('');
+  const g=$('#grid');g.innerHTML='';
+  D.pizzas.filter(p=>filter==='all'||(filter==='veg')===p.veg).forEach(p=>{
+    const s=sel[p.id]||0,c=document.createElement('article');c.className='card';
+    const ph=A.pizza&&A.pizza[p.id];
+    c.innerHTML=`${ph?`<img class="pz ph" src="${ph}" alt="${p['name_'+lang]}" tabindex="0" role="button">`:`<div class="pz" role="button" tabindex="0" aria-label="${p['name_'+lang]}"></div>`}
+      <h3><span class="mark ${p.veg?'v':'n'}" role="img" aria-label="${t(p.veg?'veg':'non')}"></span>${p['name_'+lang]}</h3>
+      <p class="desc">${p['desc_'+lang]}</p>
+      <div class="pills" role="group" aria-label="${t('size')}">${D.sizes.map((z,i)=>`<button class="pill" aria-pressed="${i===s}" data-i="${i}">${z[lang]}</button>`).join('')}</div>
+      <div class="row"><b class="price">₹${price(p,s)}</b><button class="btn">${t('add')}</button></div>`;
+    const pe=c.firstElementChild;
+    if(!ph)drawPizza(pe,p.sauce,p.toppings,hash(p.id));
+    pe.onclick=()=>openZoom(p,pe,false);
+    pe.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openZoom(p,pe,false)}};
+    pe.onpointerenter=e=>{if(e.pointerType==='mouse'&&noHover!==p.id)hovT=setTimeout(()=>openZoom(p,pe,true),300)};
+    pe.onpointerleave=()=>{clearTimeout(hovT);if(noHover===p.id)noHover=null};
+    c.querySelectorAll('.pill').forEach(b=>b.onclick=()=>{sel[p.id]=+b.dataset.i;renderMenu()});
+    c.querySelector('.btn').onclick=()=>addCart({key:p.id+'|'+s,en:p.name_en,hi:p.name_hi,size:s,price:price(p,s)});
+    g.append(c);
+  });
+}
+$('#filters').onclick=e=>{const b=e.target.closest('[data-f]');if(b){filter=b.dataset.f;renderMenu()}};
+
+/* ---------- hover zoom ---------- */
+let hovT,noHover=null,zId=null,zHover=false;
+function openZoom(p,src,byHover){
+  const z=$('#zoom');if(z.open||document.querySelector('dialog[open]'))return;
+  clearTimeout(hovT);
+  const s=sel[p.id]||0,spin=$('#zspin'),stage=$('#zstage');
+  const el=src.cloneNode(true);el.removeAttribute('tabindex');el.removeAttribute('role');
+  const tops=document.createElement('div');tops.className='tops';spin.replaceChildren(el,tops);
+  $('#zName').textContent=p['name_'+lang];$('#zDesc').textContent=p['desc_'+lang];
+  $('#zPrice').textContent='₹'+price(p,s)+' · '+D.sizes[s][lang];
+  $('#zAdd').textContent=t('add');
+  $('#zAdd').onclick=()=>{addCart({key:p.id+'|'+s,en:p.name_en,hi:p.name_hi,size:s,price:price(p,s)});z.close()};
+  zId=p.id;zHover=byHover;
+  const a=src.getBoundingClientRect();
+  z.showModal();
+  const still=matchMedia('(prefers-reduced-motion: reduce)').matches,b=stage.getBoundingClientRect();
+  // FLIP: start the big pizza exactly where the card photo is, then let it fly to the centre
+  if(!still)stage.animate([{transform:`translate(${a.left+a.width/2-b.left-b.width/2}px,${a.top+a.height/2-b.top-b.height/2}px) scale(${a.width/b.width}) rotate(-50deg)`},{transform:'none'}],{duration:520,easing:'cubic-bezier(.2,.9,.3,1.12)'});
+  const ids=[...new Set(p.toppings)],per=Math.max(4,Math.round(12/ids.length)),pts=[],far=Math.max(innerWidth,innerHeight)*.8;let i=0;
+  ids.forEach(id=>place(per,pts,Math.random).forEach(pt=>{
+    pts.push(pt);const e=mkPiece(T[id],pt);tops.append(e);
+    if(!still){
+      const g=Math.random()*6.283,rest=`translate(-50%,-50%) rotate(${pt.r}deg) scaleX(${pt.f})`;
+      e.animate([{transform:`translate(calc(-50% + ${Math.cos(g)*far}px),calc(-50% + ${Math.sin(g)*far}px)) rotate(${pt.r+540}deg) scale(3)`,opacity:0},{opacity:1,offset:.3},{transform:rest+' scale(1.18)',offset:.86},{transform:rest}],
+        {duration:700,delay:480+i*55,easing:'cubic-bezier(.3,.9,.4,1)',fill:'backwards'});
+    }
+    i++;
+  }));
+  const done=still?0:480+i*55+450;
+  stage.querySelectorAll('.ring').forEach((r,k)=>{r.classList.remove('go');void r.offsetWidth;if(!still){r.style.animationDelay=done+k*250+'ms';r.classList.add('go')}});
+  const info=$('#zinfo');info.classList.remove('up');void info.offsetWidth;if(!still){info.style.animationDelay=done+'ms';info.classList.add('up')}
+}
+$('#zoom').addEventListener('close',()=>{noHover=zId;$('#zspin').replaceChildren()});
+$('#zwrap').addEventListener('pointerleave',e=>{if(zHover&&e.pointerType==='mouse')$('#zoom').close()});
+
+/* ---------- cart ---------- */
+function addCart(it){const f=cart.find(c=>c.key===it.key);f?f.q++:cart.push({...it,q:1});renderCart();toast(t('added'))}
+const cartTotal=()=>cart.reduce((a,c)=>a+c.q*c.price,0);
+function renderCart(){
+  const n=cart.reduce((a,c)=>a+c.q,0),tot=cartTotal();
+  $('#cartbar').hidden=!n;
+  $('#cbL').textContent=`${t('view')} · ${n} ${t(n===1?'item':'items')}`;$('#cbR').textContent='₹'+tot;
+  $('#cartH').textContent=t('cart');$('#sumL').textContent=t('total');$('#sumR').textContent='₹'+tot;
+  $('#lines').innerHTML=cart.map((c,i)=>`<div class="line"><div><b>${c[lang]}</b> (${D.sizes[c.size][lang]})${c.detail?`<small>${c.detail[lang]}</small>`:''}<small>₹${c.price}</small></div>
+    <div class="qty"><button data-i="${i}" data-d="-1" aria-label="−1 ${c[lang]}">−</button><b>${c.q}</b><button data-i="${i}" data-d="1" aria-label="+1 ${c[lang]}">+</button></div><b>₹${c.q*c.price}</b></div>`).join('');
+  // WhatsApp message is in English so any staff member can read it
+  const lines=cart.map(c=>`${c.q} x ${c.en} (${D.sizes[c.size].en})${c.detail?' ['+c.detail.en+']':''} = Rs ${c.q*c.price}`);
+  const w=$('#waBtn');w.textContent=t('wa');
+  w.href='https://wa.me/'+D.shop.wa+'?text='+encodeURIComponent('New order\n'+lines.join('\n')+'\nTotal: Rs '+tot);
+  if(!n&&$('#cartDlg').open)$('#cartDlg').close();
+}
+$('#lines').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;const c=cart[b.dataset.i];c.q+=+b.dataset.d;if(c.q<1)cart.splice(b.dataset.i,1);renderCart()};
+$('#cartBtn').onclick=()=>$('#cartDlg').showModal();
+
+/* ---------- builder ---------- */
+const bpz=$('#bpz');
+if(PH){bpz.classList.add('photo');bpz.innerHTML=`<img class="sauce" alt=""><img class="cheese" alt="" src="${A.cheese}"><i class="tint"></i><div class="tops"></div><i class="flame"></i>`}
+const bTops=bpz.querySelector('.tops');
+function bPrice(){
+  const sum=Object.entries(B.layers).reduce((a,[id,n])=>a+T[id].price*n,0);
+  return Math.round((D.base+SAUCE[B.sauce].extra+sum)*D.sizes[B.size].mult);
+}
+function bSync(){
+  $('#board').style.setProperty('--sz',D.sizes[B.size].sz+'%');
+  bpz.style.setProperty('--sauce',SAUCE[B.sauce].color);
+  const si=bpz.querySelector('img.sauce');
+  if(si&&si.dataset.s!==B.sauce){si.dataset.s=B.sauce;si.src=A.sauce[B.sauce];si.animate([{opacity:.25},{opacity:1}],{duration:500})}
+  $('#bTotal').textContent='₹'+bPrice();
+}
+function renderBuilder(){
+  $('#hSize').textContent=t('size');$('#hSauce').textContent=t('sauce');$('#hint').textContent=t('hint');
+  $('#bakeBtn').textContent=t('bake');$('#resetBtn').textContent=t('reset');$('#bAdd').textContent=t('addc');
+  $('#bSizes').innerHTML=D.sizes.map((z,i)=>`<button class="pill" aria-pressed="${i===B.size}" data-i="${i}">${z[lang]}</button>`).join('');
+  $('#bSauces').innerHTML=D.sauces.map(s=>`<button class="pill" aria-pressed="${s.id===B.sauce}" data-s="${s.id}">${s[lang]}${s.extra?' +₹'+s.extra:''}</button>`).join('');
+  const box=$('#bTops');box.innerHTML='';
+  ['veg','nonveg','finisher'].forEach(g=>{
+    const h=document.createElement('h3');h.textContent=t('g_'+g);h.style.marginTop='10px';
+    const wrap=document.createElement('div');wrap.className='chips';
+    D.toppings.filter(a=>a[3]===g).forEach(a=>{
+      const tp=T[a[0]],n=B.layers[tp.id]||0,d=document.createElement('div');d.className='tp';
+      d.innerHTML=`<button class="chip${n?' on':''}" data-id="${tp.id}"><span class="smp"></span><span>${tp[lang]}<small>₹${tp.price} ${t('layer')}</small></span></button>`
+        +(n?`<span class="cnt">${n}</span><button class="minus" data-rm="${tp.id}" aria-label="${t('remove')} ${tp[lang]}">−</button>`:'');
+      d.querySelector('.smp').append(pieceNode(tp,()=>0,34,'px','--sw'));
+      wrap.append(d);
+    });
+    box.append(h,wrap);
+  });
+  bSync();
+}
+function addTopping(id){
+  const n=B.layers[id]||0;if(n>=MAX)return;
+  B.layers[id]=n+1;bpz.classList.remove('baked');
+  const tp=T[id];
+  place(perLayer(tp),B.pieces,Math.random).forEach((p,i)=>{
+    p.id=id;p.layer=n+1;B.pieces.push(p);
+    const e=mkPiece(tp,p);e.classList.add('drop');e.style.animationDelay=i*45+'ms';e.dataset.k=id+'|'+(n+1);bTops.append(e);
+  });
+  renderBuilder();
+}
+function removeLayer(id){
+  const n=B.layers[id];if(!n)return;
+  B.pieces=B.pieces.filter(p=>!(p.id===id&&p.layer===n));
+  bTops.querySelectorAll(`[data-k="${id}|${n}"]`).forEach(e=>e.remove());
+  n>1?B.layers[id]=n-1:delete B.layers[id];renderBuilder();
+}
+$('#bSizes').onclick=e=>{const b=e.target.closest('[data-i]');if(b){B.size=+b.dataset.i;renderBuilder()}};
+$('#bSauces').onclick=e=>{const b=e.target.closest('[data-s]');if(b){B.sauce=b.dataset.s;renderBuilder()}};
+$('#resetBtn').onclick=()=>{B.layers={};B.pieces=[];bTops.innerHTML='';bpz.classList.remove('baked');renderBuilder()};
+$('#bakeBtn').onclick=()=>{const f=bpz.querySelector('.flame');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');bpz.classList.add('baked')};
+$('#bAdd').onclick=()=>{
+  const d=l=>[SAUCE[B.sauce][l],...Object.entries(B.layers).map(([id,n])=>T[id][l]+(n>1?' x'+n:''))].join(', ');
+  addCart({key:'c'+Date.now(),en:STR.en.custom,hi:STR.hi.custom,size:B.size,price:bPrice(),detail:{en:d('en'),hi:d('hi')}});
+};
+// tap, keyboard or drag (pointer events, so it works on touch too)
+$('#bTops').addEventListener('click',e=>{
+  const rm=e.target.closest('[data-rm]');if(rm)return removeLayer(rm.dataset.rm);
+  const c=e.target.closest('.chip');if(c&&e.detail===0)addTopping(c.dataset.id);        // keyboard Enter / Space
+});
+$('#bTops').addEventListener('pointerdown',e=>{
+  const chip=e.target.closest('.chip');if(!chip||e.button)return;
+  const id=chip.dataset.id,x0=e.clientX,y0=e.clientY;let moved=false,ghost;
+  const over=ev=>{const b=bpz.getBoundingClientRect();return Math.hypot(ev.clientX-(b.left+b.width/2),ev.clientY-(b.top+b.height/2))<b.width/2};
+  const move=ev=>{
+    if(!moved&&Math.hypot(ev.clientX-x0,ev.clientY-y0)<8)return;
+    if(!moved){moved=true;ghost=document.createElement('div');ghost.className='ghost-pc';ghost.append(pieceNode(T[id],()=>0,54,'px','--gw'));document.body.append(ghost)}
+    ghost.style.left=ev.clientX+'px';ghost.style.top=ev.clientY+'px';
+  };
+  const end=ev=>{
+    removeEventListener('pointermove',move);removeEventListener('pointerup',end);removeEventListener('pointercancel',end);
+    if(ghost)ghost.remove();
+    if(ev.type==='pointerup'&&(!moved||over(ev)))addTopping(id);
+  };
+  addEventListener('pointermove',move);addEventListener('pointerup',end);addEventListener('pointercancel',end);
+});
+
+/* ---------- QR, tabs, language ---------- */
+$('#qrBtn').onclick=()=>{
+  $('#qrH').textContent=t('qr');
+  if(window.qrcode){const q=qrcode(0,'M');q.addData(D.shop.url||location.href);q.make();$('#qrbox').innerHTML=q.createSvgTag({cellSize:6,margin:0,scalable:true})}
+  else $('#qrbox').textContent=t('noqr');
+  $('#qrDlg').showModal();
+};
+document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d||e.target.closest('[data-close]'))d.close()}));
+function showTab(b){$('#menuView').hidden=b;$('#buildView').hidden=!b;$('#tabMenu').setAttribute('aria-selected',!b);$('#tabBuild').setAttribute('aria-selected',b);scrollTo(0,0)}
+$('#tabMenu').onclick=()=>showTab(false);$('#tabBuild').onclick=()=>showTab(true);
+$('#fsBtn').onclick=async()=>{
+  const d=document.documentElement,b=document.body;
+  if(document.fullscreenElement)return document.exitFullscreen();
+  if(b.classList.contains('tv'))return b.classList.remove('tv');           // leaving the fallback layout
+  try{await (d.requestFullscreen||d.webkitRequestFullscreen).call(d)}catch(e){}  // blocked (e.g. iPhone): the wide layout below still applies
+  b.classList.add('tv');
+};
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)document.body.classList.remove('tv')});
+let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),1400)}
+function renderAll(){
+  document.documentElement.lang=lang;document.title=D.shop['name_'+lang];
+  $('#shop').textContent=D.shop['name_'+lang];$('#tag').textContent=D.shop['tag_'+lang];
+  $('#langBtn').textContent=t('lang');$('#fsBtn').setAttribute('aria-label',t('fs'));$('#fsBtn').title=t('fs');$('#tabMenu').textContent=t('menu');$('#tabBuild').textContent=t('build');
+  renderMenu();renderBuilder();renderCart();
+}
+$('#langBtn').onclick=()=>{lang=lang==='en'?'hi':'en';try{localStorage.setItem('lang',lang)}catch(e){}renderAll()};
+renderAll();
+</script>
+</body>
+</html>
