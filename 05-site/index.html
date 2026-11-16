@@ -47,7 +47,7 @@ main{max-width:1100px;margin:auto;padding-block:16px;padding-left:max(16px,env(s
 .btn.go{width:100%;display:block;min-height:54px;font-size:1.05rem}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .fld{display:grid;gap:4px;margin-bottom:12px;font-weight:700;font-size:.9rem}
-.fld select,.fld textarea{font:inherit;font-weight:400;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-height:46px;width:100%}
+.fld select,.fld textarea,.fld input{font:inherit;font-weight:400;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-height:46px;width:100%}
 .msg{margin:10px 0 0;font-size:.9rem;color:var(--mut);text-align:center}
 .msg.err{color:var(--red);font-weight:700}
 .tblno{display:inline-block;background:var(--red);color:#fff;border-radius:8px;padding:0 8px;margin-right:6px;font-weight:800}
@@ -62,6 +62,26 @@ main{max-width:1100px;margin:auto;padding-block:16px;padding-left:max(16px,env(s
 .oc.cx{opacity:.6}.oc.cx .stx{color:var(--red)}
 .linkbtn{color:var(--red);font-weight:700;text-decoration:underline;min-height:40px}
 @media(max-width:430px){#fsBtn{display:none}}
+.callbar{max-width:1100px;margin:auto;padding-bottom:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;gap:8px}
+.callbar .pill{flex:1;min-height:40px;font-weight:800}
+.xsec{margin-top:28px}
+.xsec>h2{font-size:1.5rem;margin-bottom:6px}
+.xsec h3{margin:16px 0 8px;font-size:1.1rem;color:var(--mut)}
+.xgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.xi{background:var(--card);border-radius:18px;padding:12px 14px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:center}
+.xi>div{flex:1;min-width:0}
+.xi b{display:flex;align-items:center;gap:6px}
+.xi p{margin:2px 0 0;font-size:.82rem;color:var(--mut)}
+.xi .btn{min-height:40px;padding:6px 14px}
+.xi.sold{opacity:.55}
+.paybox{background:var(--mint);border-radius:16px;padding:12px 14px;margin-bottom:12px;text-align:center}
+.paybox a{text-decoration:none;display:block}
+.paybox small{display:block;margin-top:6px;color:var(--mut)}
+.stars{display:flex;gap:4px;margin:6px 0}
+.stars button{width:40px;height:40px;border-radius:10px;background:var(--bg);border:1.5px solid var(--line);font-size:1.3rem;line-height:1;color:var(--mut)}
+.stars button.on{background:#f2c14e;border-color:#f2c14e;color:#5a3a00}
+.rate textarea{font:inherit;width:100%;border:1.5px solid var(--line);border-radius:10px;padding:8px;background:var(--bg);color:var(--ink);margin:4px 0}
+.okline{font-size:.9rem;font-weight:700;color:var(--mint2);margin:6px 0 0}
 
 /* pizza */
 .pz{position:relative;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#e6b56c 0 60%,#d89a4c 86%,#b9742f 94%,#9a5c22 100%);box-shadow:0 8px 14px rgba(0,0,0,.22);transition:filter .8s}
@@ -179,12 +199,14 @@ dialog::backdrop{background:rgba(8,20,16,.55);backdrop-filter:blur(3px)}
     <button class="tab" role="tab" id="tabMenu" aria-selected="true"></button>
     <button class="tab" role="tab" id="tabBuild" aria-selected="false"></button>
   </div>
+  <div class="callbar" id="callbar" hidden><button class="pill" id="callStaff"></button><button class="pill" id="askBill"></button></div>
 </header>
 
 <main>
   <section id="menuView">
     <div class="pills" id="filters" role="group"></div>
     <div class="grid" id="grid"></div>
+    <div class="xsec"><h2 id="xH"></h2><div id="xList"></div></div>
   </section>
 
   <section id="buildView" class="build" hidden>
@@ -214,7 +236,11 @@ dialog::backdrop{background:rgba(8,20,16,.55);backdrop-filter:blur(3px)}
   <div class="dh"><h2 id="cartH"></h2><button class="x" data-close aria-label="Close">×</button></div>
   <div id="lines"></div>
   <div class="sum"><span id="sumL"></span><span id="sumR"></span></div>
+  <div class="pills" id="modeSel" role="group" hidden style="margin-bottom:12px"></div>
   <label class="fld" id="tblWrap" hidden><span id="tblL"></span><select id="tblSel"></select></label>
+  <label class="fld" id="nameWrap" hidden><span id="nameL"></span><input id="cname" maxlength="40" autocomplete="name"></label>
+  <label class="fld" id="phoneWrap"><span id="phoneL"></span><input id="cphone" type="tel" inputmode="numeric" maxlength="14" autocomplete="tel-national"></label>
+  <p class="msg" id="loyHint" style="margin:-4px 0 12px"></p>
   <label class="fld"><span id="noteL"></span><textarea id="note" maxlength="200" rows="2"></textarea></label>
   <button class="btn go" id="orderBtn"></button>
   <p class="msg" id="ordMsg" role="status"></p>
@@ -248,6 +274,17 @@ dialog::backdrop{background:rgba(8,20,16,.55);backdrop-filter:blur(3px)}
  {"id":"pesto","en":"Pesto","hi":"पेस्तो","extra":30,"color":"#6f9a3a"},
  {"id":"garlic","en":"Garlic white","hi":"गार्लिक व्हाइट","extra":20,"color":"#f1e6c8"},
  {"id":"bbq","en":"Smoky BBQ","hi":"स्मोकी बीबीक्यू","extra":30,"color":"#5a2a1a"}],
+"extras":[
+ {"id":"garlic-bread","cat":"sides","en":"Garlic Bread","hi":"गार्लिक ब्रेड","desc_en":"4 pieces, herb butter","desc_hi":"4 पीस, हर्ब बटर","veg":true,"price":129},
+ {"id":"cheesy-garlic-bread","cat":"sides","en":"Cheesy Garlic Bread","hi":"चीज़ी गार्लिक ब्रेड","desc_en":"4 pieces with melted mozzarella","desc_hi":"4 पीस, पिघले मोज़रेला के साथ","veg":true,"price":159},
+ {"id":"peri-fries","cat":"sides","en":"Peri Peri Fries","hi":"पेरी पेरी फ्राइज़","desc_en":"Crisp fries, spicy peri peri dust","desc_hi":"कुरकुरे फ्राइज़, तीखा पेरी पेरी मसाला","veg":true,"price":119},
+ {"id":"chicken-wings","cat":"sides","en":"Chicken Wings","hi":"चिकन विंग्स","desc_en":"6 wings, smoky BBQ glaze","desc_hi":"6 विंग्स, स्मोकी बीबीक्यू","veg":false,"price":229},
+ {"id":"choco-lava","cat":"desserts","en":"Choco Lava Cake","hi":"चोको लावा केक","desc_en":"Warm, with a molten centre","desc_hi":"गरम, अंदर पिघली चॉकलेट","veg":true,"price":99},
+ {"id":"brownie-sundae","cat":"desserts","en":"Brownie Sundae","hi":"ब्राउनी संडे","desc_en":"Brownie with vanilla ice cream","desc_hi":"ब्राउनी और वनीला आइसक्रीम","veg":true,"price":149},
+ {"id":"cola","cat":"drinks","en":"Cola (500 ml)","hi":"कोला (500 मि.ली.)","desc_en":"Chilled","desc_hi":"ठंडा","veg":true,"price":60},
+ {"id":"lime-soda","cat":"drinks","en":"Fresh Lime Soda","hi":"फ्रेश लाइम सोडा","desc_en":"Sweet or salted, say which in the note","desc_hi":"मीठा या नमकीन, नोट में लिखें","veg":true,"price":79},
+ {"id":"cold-coffee","cat":"drinks","en":"Cold Coffee","hi":"कोल्ड कॉफ़ी","desc_en":"Thick and creamy","desc_hi":"गाढ़ी और क्रीमी","veg":true,"price":119},
+ {"id":"water","cat":"drinks","en":"Mineral Water (1 L)","hi":"मिनरल वॉटर (1 ली.)","desc_en":"Sealed bottle","desc_hi":"सील बंद बोतल","veg":true,"price":30}],
 "pizzas":[
  {"id":"margherita","name_en":"Margherita","name_hi":"मार्गरीटा","desc_en":"Tomato sauce, fresh mozzarella and basil","desc_hi":"टमाटर सॉस, ताज़ा मोज़रेला और तुलसी","veg":true,"price":299,"sauce":"tomato","toppings":["basil","cherry-tomato"]},
  {"id":"farmhouse","name_en":"Farmhouse","name_hi":"फार्महाउस","desc_en":"Mushroom, capsicum, onion, tomato and sweet corn","desc_hi":"मशरूम, शिमला मिर्च, प्याज़, टमाटर और स्वीट कॉर्न","veg":true,"price":429,"sauce":"tomato","toppings":["mushroom","green-capsicum","red-onion","tomato","sweet-corn"]},
@@ -306,27 +343,27 @@ const A=JSON.parse($('#assets').textContent),PH=!!A.cheese;            // photos
 const SZ={'red-onion':17,'white-onion':17,'green-capsicum':20,'red-capsicum':20,'yellow-capsicum':20,mushroom:14,'black-olives':8,'green-olives':8,'sweet-corn':4.5,tomato:16,'cherry-tomato':9,jalapeno:9,paneer:9,'tandoori-paneer':10,spinach:15,pineapple:9,basil:14,broccoli:11,pepperoni:14,'chicken-tikka':11,'grilled-chicken':16,'chicken-sausage':11,bacon:17,salami:16,'mutton-keema':10,prawns:13,'extra-cheese':14,feta:9,'chili-flakes':9,'roasted-garlic':9};
 const NP={'sweet-corn':12,'black-olives':8,'green-olives':8,'chili-flakes':7,tomato:5,salami:5,bacon:5,'red-onion':5,'white-onion':5};
 const STR={
- en:{menu:'Menu',build:'Make your own',all:'All',veg:'Veg',non:'Non-veg',add:'Add',cart:'Your order',total:'Total',order:'Send order to counter',table:'Table',pickT:'Choose your table',note:'Note for the kitchen (optional)',sending:'Sending…',sent:'Order sent! The counter has it.',closed:'Sorry, we are not taking orders right now.',offline:'Ordering works on the live menu:',myorders:'Your orders',st_new:'Sent to counter',st_accepted:'Being made',st_ready:'Ready',st_served:'Served',st_cancelled:'Cancelled',cancel:'Cancel order',soldout:'Sold out',err:'Could not send. Check your internet and try again.',paid:'Paid',unpaid:'Pay at the counter',ordno:'Order',connecting:'Connecting…',view:'View order',item:'item',items:'items',qr:'Scan to open this menu',sauce:'Sauce',size:'Size',g_veg:'Veg toppings',g_nonveg:'Non-veg toppings',g_finisher:'Finishers',bake:'Bake',reset:'Start over',addc:'Add to order',custom:'Custom pizza',hint:'Tap a topping, or drag its picture onto the pizza. Up to 3 layers each.',noqr:'The QR code needs an internet connection the first time.',remove:'Remove one layer of',added:'Added to order',layer:'per layer',lang:'हिंदी',fs:'Full screen'},
- hi:{menu:'मेन्यू',build:'अपना पिज़्ज़ा बनाओ',all:'सभी',veg:'वेज',non:'नॉन-वेज',add:'जोड़ें',cart:'आपका ऑर्डर',total:'कुल',order:'काउंटर पर ऑर्डर भेजें',table:'टेबल',pickT:'अपनी टेबल चुनें',note:'किचन के लिए नोट (ज़रूरी नहीं)',sending:'भेज रहे हैं…',sent:'ऑर्डर भेज दिया! काउंटर को मिल गया।',closed:'माफ़ कीजिए, अभी ऑर्डर नहीं ले रहे।',offline:'ऑर्डर लाइव मेन्यू पर होता है:',myorders:'आपके ऑर्डर',st_new:'काउंटर को भेजा',st_accepted:'बन रहा है',st_ready:'तैयार',st_served:'परोसा गया',st_cancelled:'रद्द',cancel:'ऑर्डर रद्द करें',soldout:'ख़त्म',err:'भेज नहीं पाए। इंटरनेट देखें और फिर कोशिश करें।',paid:'भुगतान हो गया',unpaid:'काउंटर पर भुगतान करें',ordno:'ऑर्डर',connecting:'जुड़ रहे हैं…',view:'ऑर्डर देखें',item:'आइटम',items:'आइटम',qr:'मेन्यू खोलने के लिए स्कैन करें',sauce:'सॉस',size:'साइज़',g_veg:'वेज टॉपिंग',g_nonveg:'नॉन-वेज टॉपिंग',g_finisher:'फिनिशर',bake:'बेक करें',reset:'फिर से शुरू',addc:'ऑर्डर में जोड़ें',custom:'कस्टम पिज़्ज़ा',hint:'टॉपिंग पर टैप करें, या उसकी तस्वीर पिज़्ज़ा पर खींचें। हर टॉपिंग 3 बार तक।',noqr:'पहली बार QR कोड के लिए इंटरनेट चाहिए।',remove:'एक परत हटाएँ:',added:'ऑर्डर में जुड़ गया',layer:'हर परत',lang:'English',fs:'फ़ुल स्क्रीन'}};
+ en:{menu:'Menu',build:'Make your own',all:'All',veg:'Veg',non:'Non-veg',add:'Add',cart:'Your order',total:'Total',sides:'Sides, desserts and drinks',c_sides:'Sides',c_desserts:'Desserts',c_drinks:'Drinks',dine:'Dine-in',take:'Takeaway',name:'Your name',phone:'Mobile number',phoneOpt:'Mobile number (optional, for loyalty stamps)',needName:'Please add your name.',needPhone:'Please add a 10-digit mobile number.',loy:'Collect stamps with your number: after every {n} pizzas, the next one is free.',callStaff:'Call staff',askBill:'Bring the bill',called:'Staff is on the way',billComing:'Your bill is on its way',wait:'Please wait a few seconds and try again.',pickup:'Pickup code',eta:'Ready around',pay:'Pay {a} by UPI',payNote:'Then show the payment screen at the counter.',free:'Free pizza',stamps:'You have {s} stamps. {r} more for a free pizza.',stampsFree:'You have earned a free pizza! Ask at the counter.',rateQ:'How was it?',rateNote:'Anything to tell us? (optional)',send:'Send',thanks:'Thanks for rating!',google:'Rate us on Google too',order:'Send order to counter',table:'Table',pickT:'Choose your table',note:'Note for the kitchen (optional)',sending:'Sending…',sent:'Order sent! The counter has it.',closed:'Sorry, we are not taking orders right now.',offline:'Ordering works on the live menu:',myorders:'Your orders',st_new:'Sent to counter',st_accepted:'Being made',st_ready:'Ready',st_served:'Served',st_cancelled:'Cancelled',cancel:'Cancel order',soldout:'Sold out',err:'Could not send. Check your internet and try again.',paid:'Paid',unpaid:'Pay at the counter',ordno:'Order',connecting:'Connecting…',view:'View order',item:'item',items:'items',qr:'Scan to open this menu',sauce:'Sauce',size:'Size',g_veg:'Veg toppings',g_nonveg:'Non-veg toppings',g_finisher:'Finishers',bake:'Bake',reset:'Start over',addc:'Add to order',custom:'Custom pizza',hint:'Tap a topping, or drag its picture onto the pizza. Up to 3 layers each.',noqr:'The QR code needs an internet connection the first time.',remove:'Remove one layer of',added:'Added to order',layer:'per layer',lang:'हिंदी',fs:'Full screen'},
+ hi:{menu:'मेन्यू',build:'अपना पिज़्ज़ा बनाओ',all:'सभी',veg:'वेज',non:'नॉन-वेज',add:'जोड़ें',cart:'आपका ऑर्डर',total:'कुल',sides:'साइड्स, डेज़र्ट और ड्रिंक्स',c_sides:'साइड्स',c_desserts:'डेज़र्ट',c_drinks:'ड्रिंक्स',dine:'यहीं खाएँगे',take:'पैक करवाएँगे',name:'आपका नाम',phone:'मोबाइल नंबर',phoneOpt:'मोबाइल नंबर (ज़रूरी नहीं, लॉयल्टी स्टैम्प के लिए)',needName:'कृपया अपना नाम लिखें।',needPhone:'कृपया 10 अंकों का मोबाइल नंबर लिखें।',loy:'नंबर से स्टैम्प जमा करें: हर {n} पिज़्ज़ा के बाद अगला मुफ़्त।',callStaff:'स्टाफ़ बुलाएँ',askBill:'बिल लाइए',called:'स्टाफ़ आ रहा है',billComing:'बिल आ रहा है',wait:'कुछ सेकंड रुककर फिर कोशिश करें।',pickup:'पिकअप कोड',eta:'लगभग तैयार:',pay:'UPI से {a} चुकाएँ',payNote:'फिर भुगतान की स्क्रीन काउंटर पर दिखाएँ।',free:'मुफ़्त पिज़्ज़ा',stamps:'आपके {s} स्टैम्प हैं। मुफ़्त पिज़्ज़ा के लिए {r} और।',stampsFree:'आपने मुफ़्त पिज़्ज़ा कमा लिया! काउंटर पर बताएँ।',rateQ:'कैसा लगा?',rateNote:'कुछ कहना है? (ज़रूरी नहीं)',send:'भेजें',thanks:'रेटिंग के लिए धन्यवाद!',google:'Google पर भी रेटिंग दें',order:'काउंटर पर ऑर्डर भेजें',table:'टेबल',pickT:'अपनी टेबल चुनें',note:'किचन के लिए नोट (ज़रूरी नहीं)',sending:'भेज रहे हैं…',sent:'ऑर्डर भेज दिया! काउंटर को मिल गया।',closed:'माफ़ कीजिए, अभी ऑर्डर नहीं ले रहे।',offline:'ऑर्डर लाइव मेन्यू पर होता है:',myorders:'आपके ऑर्डर',st_new:'काउंटर को भेजा',st_accepted:'बन रहा है',st_ready:'तैयार',st_served:'परोसा गया',st_cancelled:'रद्द',cancel:'ऑर्डर रद्द करें',soldout:'ख़त्म',err:'भेज नहीं पाए। इंटरनेट देखें और फिर कोशिश करें।',paid:'भुगतान हो गया',unpaid:'काउंटर पर भुगतान करें',ordno:'ऑर्डर',connecting:'जुड़ रहे हैं…',view:'ऑर्डर देखें',item:'आइटम',items:'आइटम',qr:'मेन्यू खोलने के लिए स्कैन करें',sauce:'सॉस',size:'साइज़',g_veg:'वेज टॉपिंग',g_nonveg:'नॉन-वेज टॉपिंग',g_finisher:'फिनिशर',bake:'बेक करें',reset:'फिर से शुरू',addc:'ऑर्डर में जोड़ें',custom:'कस्टम पिज़्ज़ा',hint:'टॉपिंग पर टैप करें, या उसकी तस्वीर पिज़्ज़ा पर खींचें। हर टॉपिंग 3 बार तक।',noqr:'पहली बार QR कोड के लिए इंटरनेट चाहिए।',remove:'एक परत हटाएँ:',added:'ऑर्डर में जुड़ गया',layer:'हर परत',lang:'English',fs:'फ़ुल स्क्रीन'}};
 let lang='en';try{lang=localStorage.getItem('lang')||'en'}catch(e){}
 const t=k=>STR[lang][k];
 let filter='all',cart=[];const sel={};
 /* ---------- live shop state (filled in by the module script at the bottom) ---------- */
-const BASEPRICE=Object.fromEntries(D.pizzas.map(p=>[p.id,p.price]));
-const LIVE={ready:false,offline:false,open:true,tables:12,soldOut:[],mine:[],sending:false,msg:'',err:false};
+const BASEPRICE=Object.fromEntries([...D.pizzas,...D.extras].map(p=>[p.id,p.price]));
+const LIVE={shop:{},ready:false,offline:false,open:true,tables:12,soldOut:[],mine:[],sending:false,msg:'',err:false};
 const isSold=id=>LIVE.soldOut.includes(id);
 let TABLE=null;
 try{const q=+new URLSearchParams(location.search).get('t');if(q>0){TABLE=q;sessionStorage.setItem('table',q)}else TABLE=+sessionStorage.getItem('table')||null}catch(e){}
 window.APP={
   live(shop,menu){
-    if(shop){LIVE.open=!!shop.open;LIVE.tables=shop.tables||12}
-    if(menu){LIVE.soldOut=menu.soldOut||[];D.pizzas.forEach(p=>p.price=(menu.prices||{})[p.id]||BASEPRICE[p.id])}
+    if(shop){LIVE.open=!!shop.open;LIVE.tables=shop.tables||12;LIVE.shop=shop}
+    if(menu){LIVE.soldOut=menu.soldOut||[];[...D.pizzas,...D.extras].forEach(p=>p.price=(menu.prices||{})[p.id]||BASEPRICE[p.id])}
     LIVE.ready=true;renderAll();
   },
   mine(list){LIVE.mine=list;renderMine()},
   offline(){LIVE.offline=true;renderOrderBox()},
-  refresh(){renderOrderBox()},
-  sendHook:null,cancelHook:null
+  refresh(){renderOrderBox();renderCallbar()},
+  sendHook:null,cancelHook:null,reqHook:null,rateHook:null
 };
 const B={size:1,sauce:'tomato',layers:{},pieces:[]};
 
@@ -384,11 +421,11 @@ function renderMenu(){
     pe.onpointerenter=e=>{if(e.pointerType==='mouse'&&noHover!==p.id)hovT=setTimeout(()=>openZoom(p,pe,true),300)};
     pe.onpointerleave=()=>{clearTimeout(hovT);if(noHover===p.id)noHover=null};
     c.querySelectorAll('.pill').forEach(b=>b.onclick=()=>{sel[p.id]=+b.dataset.i;renderMenu()});
-    c.querySelector('.btn').onclick=()=>addCart({key:p.id+'|'+s,en:p.name_en,hi:p.name_hi,size:s,price:price(p,s)});
+    c.querySelector('.btn').onclick=()=>addCart({key:p.id+'|'+s,k:'pizza',id:p.id,en:p.name_en,hi:p.name_hi,size:s,price:price(p,s)});
     g.append(c);
   });
 }
-$('#filters').onclick=e=>{const b=e.target.closest('[data-f]');if(b){filter=b.dataset.f;renderMenu()}};
+$('#filters').onclick=e=>{const b=e.target.closest('[data-f]');if(b){filter=b.dataset.f;renderMenu();renderExtras()}};
 
 /* ---------- hover zoom ---------- */
 let hovT,noHover=null,zId=null,zHover=false;
@@ -401,7 +438,7 @@ function openZoom(p,src,byHover){
   $('#zName').textContent=p['name_'+lang];$('#zDesc').textContent=p['desc_'+lang];
   $('#zPrice').textContent='₹'+price(p,s)+' · '+D.sizes[s][lang];
   $('#zAdd').textContent=t(isSold(p.id)?'soldout':'add');$('#zAdd').disabled=isSold(p.id);
-  $('#zAdd').onclick=()=>{addCart({key:p.id+'|'+s,en:p.name_en,hi:p.name_hi,size:s,price:price(p,s)});z.close()};
+  $('#zAdd').onclick=()=>{addCart({key:p.id+'|'+s,k:'pizza',id:p.id,en:p.name_en,hi:p.name_hi,size:s,price:price(p,s)});z.close()};
   zId=p.id;zHover=byHover;
   const a=src.getBoundingClientRect();
   z.showModal();
@@ -433,7 +470,7 @@ function renderCart(){
   $('#cartbar').hidden=!n;
   $('#cbL').textContent=`${t('view')} · ${n} ${t(n===1?'item':'items')}`;$('#cbR').textContent='₹'+tot;
   $('#cartH').textContent=t('cart');$('#sumL').textContent=t('total');$('#sumR').textContent='₹'+tot;
-  $('#lines').innerHTML=cart.map((c,i)=>`<div class="line"><div><b>${c[lang]}</b> (${D.sizes[c.size][lang]})${c.detail?`<small>${c.detail[lang]}</small>`:''}<small>₹${c.price}</small></div>
+  $('#lines').innerHTML=cart.map((c,i)=>`<div class="line"><div><b>${c[lang]}</b>${c.size!=null?` (${D.sizes[c.size][lang]})`:''}${c.detail?`<small>${c.detail[lang]}</small>`:''}<small>₹${c.price}</small></div>
     <div class="qty"><button data-i="${i}" data-d="-1" aria-label="−1 ${c[lang]}">−</button><b>${c.q}</b><button data-i="${i}" data-d="1" aria-label="+1 ${c[lang]}">+</button></div><b>₹${c.q*c.price}</b></div>`).join('');
   renderOrderBox();
   if(!n&&$('#cartDlg').open)$('#cartDlg').close();
@@ -441,47 +478,120 @@ function renderCart(){
 $('#lines').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;const c=cart[b.dataset.i];c.q+=+b.dataset.d;if(c.q<1)cart.splice(b.dataset.i,1);renderCart()};
 $('#cartBtn').onclick=()=>$('#cartDlg').showModal();
 
+/* ---------- sides, desserts and drinks ---------- */
+function renderExtras(){
+  $('#xH').textContent=t('sides');
+  $('#xList').innerHTML=['sides','desserts','drinks'].map(cat=>{
+    const l=D.extras.filter(x=>x.cat===cat&&(filter==='all'||(filter==='veg')===x.veg));
+    return l.length?`<h3>${t('c_'+cat)}</h3><div class="xgrid">${l.map(x=>{const so=isSold(x.id);return `<div class="xi${so?' sold':''}">
+      <div><b><span class="mark ${x.veg?'v':'n'}" role="img" aria-label="${t(x.veg?'veg':'non')}"></span>${esc(x[lang])}</b><p>${esc(x['desc_'+lang])}</p></div>
+      <b class="price">₹${x.price}</b><button class="btn" data-x="${x.id}"${so?' disabled':''}>${t(so?'soldout':'add')}</button></div>`}).join('')}</div>`:'';
+  }).join('');
+}
+$('#xList').onclick=e=>{const b=e.target.closest('[data-x]');if(!b)return;const x=D.extras.find(v=>v.id===b.dataset.x);
+  addCart({key:'x|'+x.id,k:'extra',id:x.id,en:x.en,hi:x.hi,size:null,price:x.price})};
+
 /* ---------- sending the order to the counter ---------- */
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fill=(s,o)=>s.replace(/\{(\w)\}/g,(_,k)=>o[k]);
 const okTable=()=>TABLE&&TABLE<=LIVE.tables?TABLE:null;
+const phone10=v=>{let d=String(v).replace(/\D/g,'');if(d.length===12&&d.startsWith('91'))d=d.slice(2);if(d.length===11&&d.startsWith('0'))d=d.slice(1);return /^[6-9]\d{9}$/.test(d)?d:null};
+let MODE=new URLSearchParams(location.search).get('takeaway')?'takeaway':'table',lastSend=0,lastReq=0;
+try{$('#cname').value=localStorage.getItem('cname')||'';$('#cphone').value=localStorage.getItem('cphone')||''}catch(e){}
+const canTake=()=>LIVE.shop.takeaway===true;
 function renderOrderBox(){
-  $('#tblL').textContent=t('pickT');$('#noteL').textContent=t('note');
-  const w=$('#tblWrap');w.hidden=!!okTable();
+  if(MODE==='takeaway'&&LIVE.ready&&!canTake())MODE='table';
+  if(okTable())MODE='table';
+  const take=MODE==='takeaway',ms=$('#modeSel');
+  ms.hidden=!!okTable()||!canTake();
+  ms.innerHTML=['table','takeaway'].map(m=>`<button class="pill" data-m="${m}" aria-pressed="${m===MODE}">${t(m==='table'?'dine':'take')}</button>`).join('');
+  $('#tblL').textContent=t('pickT');$('#noteL').textContent=t('note');$('#nameL').textContent=t('name');
+  $('#phoneL').textContent=t(take?'phone':'phoneOpt');
+  const every=LIVE.shop.loyaltyEvery||0;$('#loyHint').textContent=every?fill(t('loy'),{n:every}):'';
+  const w=$('#tblWrap');w.hidden=!!okTable()||take;$('#nameWrap').hidden=!take;
   if(!w.hidden){const sl=$('#tblSel'),cur=sl.value;sl.innerHTML='<option value="">—</option>'+Array.from({length:LIVE.tables},(_,i)=>`<option value="${i+1}">${t('table')} ${i+1}</option>`).join('');sl.value=cur}
   const b=$('#orderBtn'),m=$('#ordMsg'),ready=LIVE.ready&&!!APP.sendHook;
-  if(LIVE.offline){b.hidden=true;w.hidden=true;m.className='msg';m.innerHTML=`${t('offline')} <a href="${esc(D.shop.url)}" target="_blank" rel="noopener">${esc(D.shop.url.replace(/^https?:\/\//,''))}</a>`;return}
+  if(LIVE.offline){b.hidden=true;w.hidden=true;ms.hidden=true;m.className='msg';m.innerHTML=`${t('offline')} <a href="${esc(D.shop.url)}" target="_blank" rel="noopener">${esc(D.shop.url.replace(/^https?:\/\//,''))}</a>`;return}
   b.hidden=false;
   b.textContent=LIVE.sending?t('sending'):!ready?t('connecting'):t('order')+' · ₹'+cartTotal();
   b.disabled=LIVE.sending||!ready||!LIVE.open||!cart.length;
   m.textContent=ready&&!LIVE.open?t('closed'):LIVE.msg;m.className='msg'+(LIVE.err||(ready&&!LIVE.open)?' err':'');
 }
+$('#modeSel').onclick=e=>{const b=e.target.closest('[data-m]');if(b){MODE=b.dataset.m;LIVE.msg='';LIVE.err=false;renderOrderBox()}};
+const fail=(k,el)=>{LIVE.msg=t(k);LIVE.err=true;renderOrderBox();if(el)el.focus()};
 $('#orderBtn').onclick=async()=>{
-  const table=okTable()||+$('#tblSel').value;
-  if(!table){LIVE.msg=t('pickT');LIVE.err=true;renderOrderBox();$('#tblSel').focus();return}
-  const items=cart.map(c=>({n:c.en,s:D.sizes[c.size].en,q:c.q,p:c.price,d:c.detail?c.detail.en:''}));
+  const take=MODE==='takeaway',table=take?0:(okTable()||+$('#tblSel').value);
+  const name=$('#cname').value.trim().slice(0,40),raw=$('#cphone').value.trim(),ph=raw?phone10(raw):'';
+  if(!take&&!table)return fail('pickT',$('#tblSel'));
+  if(take&&!name)return fail('needName',$('#cname'));
+  if(ph===null||(take&&!ph))return fail('needPhone',$('#cphone'));
+  if(Date.now()-lastSend<20000)return fail('wait');
+  const items=cart.map(c=>({n:c.en,s:c.size!=null?D.sizes[c.size].en:'',q:c.q,p:c.price,d:c.detail?c.detail.en:'',
+    k:c.k,id:c.id||'',sz:c.size??-1,sauce:c.sauce||'',tops:c.tops||{}}));
   LIVE.sending=true;LIVE.msg='';LIVE.err=false;renderOrderBox();
   try{
-    await Promise.race([APP.sendHook({table,items,total:cartTotal(),note:$('#note').value.trim().slice(0,200)}),new Promise((_,no)=>setTimeout(()=>no(new Error('timeout')),15000))]);
-    if(!okTable()){TABLE=table;try{sessionStorage.setItem('table',table)}catch(e){}}
+    await Promise.race([APP.sendHook({type:take?'takeaway':'table',table,name,phone:ph,items,total:cartTotal(),note:$('#note').value.trim().slice(0,200)}),new Promise((_,no)=>setTimeout(()=>no(new Error('timeout')),15000))]);
+    lastSend=Date.now();
+    try{localStorage.setItem('cname',name);localStorage.setItem('cphone',ph)}catch(e){}
+    if(!take&&!okTable()){TABLE=table;try{sessionStorage.setItem('table',table)}catch(e){}}
     cart=[];$('#note').value='';LIVE.sending=false;renderAll();toast(t('sent'));
     if(!$('#myDlg').open)$('#myDlg').showModal();
   }catch(e){console.error(e);LIVE.sending=false;LIVE.msg=t(LIVE.open?'err':'closed');LIVE.err=true;renderOrderBox()}
 };
-const ST=['new','accepted','ready','served'];
+
+/* ---------- call staff / bring the bill ---------- */
+function renderCallbar(){
+  const on=!!okTable()&&LIVE.ready&&!!APP.reqHook&&!LIVE.offline;
+  $('#callbar').hidden=!on;$('#callStaff').textContent=t('callStaff');$('#askBill').textContent=t('askBill');
+}
+async function ask(kind){
+  if(Date.now()-lastReq<20000)return toast(t('wait'));
+  lastReq=Date.now();   // set before sending, so a double tap does not send twice
+  try{await APP.reqHook(kind,okTable());toast(t(kind==='bill'?'billComing':'called'))}
+  catch(e){console.error(e);lastReq=0;toast(t('wait'))}
+}
+$('#callStaff').onclick=()=>ask('staff');$('#askBill').onclick=()=>ask('bill');
+
+/* ---------- the customer's own orders ---------- */
+const ST=['new','accepted','ready','served'],pick={};
+const hm=ms=>new Date(ms).toLocaleTimeString(lang==='hi'?'hi-IN':'en-IN',{hour:'numeric',minute:'2-digit'});
+const owed=o=>o.total-(o.discount||0);
 function renderMine(){
-  const list=LIVE.mine,active=list.filter(o=>!['served','cancelled'].includes(o.status)).length;
+  const list=LIVE.mine,active=list.filter(o=>!['served','cancelled'].includes(o.status)).length,S=LIVE.shop;
   const b=$('#myBtn');b.hidden=!list.length;b.textContent=t('myorders')+(active?' · '+active:'');
   $('#myH').textContent=t('myorders');
-  $('#myList').innerHTML=list.map(o=>{const k=ST.indexOf(o.status),cx=o.status==='cancelled';
-    return `<div class="oc${cx?' cx':''}"><h3><span>${t('ordno')} #${esc(o.no)} · ${t('table')} ${esc(o.table)}</span><span>₹${esc(o.total)}</span></h3>
-    <ul>${(o.items||[]).map(i=>`<li>${esc(i.q)} × ${esc(i.n)} (${esc(i.s)})${i.d?` <small>${esc(i.d)}</small>`:''}</li>`).join('')}</ul>
+  const due=list.filter(o=>!o.paid&&o.status!=='cancelled'),sum=due.reduce((a,o)=>a+owed(o),0);
+  const tn=due[0]?(due[0].type==='takeaway'?'Order '+due[0].no:'Table '+due[0].table):'';
+  const pay=S.upi&&sum>0?`<div class="paybox"><a class="btn go" href="upi://pay?pa=${encodeURIComponent(S.upi)}&pn=${encodeURIComponent(S.payee||D.shop.name_en)}&am=${sum}&cu=INR&tn=${encodeURIComponent(tn)}">${fill(t('pay'),{a:'₹'+sum})}</a><small>${t('payNote')}</small></div>`:'';
+  // The counter keeps the stamp count on the customer's newest paid order, so show it there only.
+  const every=S.loyaltyEvery||0,last=list.find(o=>o.stamps!=null);
+  $('#myList').innerHTML=pay+list.map(o=>{const k=ST.indexOf(o.status),cx=o.status==='cancelled',take=o.type==='takeaway';
+    const eta=o.status==='accepted'&&o.eta&&o.acceptedAt?`<p class="okline">${t('eta')} ${hm(o.acceptedAt.toMillis()+o.eta*60000)}</p>`:'';
+    const have=o===last?o.stamps:0;
+    const st=o===last&&every?`<p class="okline">★ ${have>=every?t('stampsFree'):fill(t('stamps'),{s:have,r:every-have})}</p>`:'';
+    let rate='';
+    if(o.status==='served'){
+      if(o.rating)rate=`<p class="okline">${'★'.repeat(o.rating)}${'☆'.repeat(5-o.rating)} ${t('thanks')}</p>${o.rating>=4&&S.review?`<a class="linkbtn" href="${esc(S.review)}" target="_blank" rel="noopener">${t('google')}</a>`:''}`;
+      else{const p=pick[o.id]||0;rate=`<div class="rate"><b>${t('rateQ')}</b><div class="stars">${[1,2,3,4,5].map(n=>`<button class="${n<=p?'on':''}" data-star="${n}" data-o="${esc(o.id)}" aria-label="${n} / 5">★</button>`).join('')}</div>
+        ${p?`<textarea maxlength="300" rows="2" placeholder="${t('rateNote')}" id="rc-${esc(o.id)}"></textarea><button class="btn" data-rate="${esc(o.id)}">${t('send')}</button>`:''}</div>`}
+    }
+    return `<div class="oc${cx?' cx':''}"><h3><span>${take?`${t('take')} · ${t('pickup')} <b>${esc(o.no)}</b>`:`${t('ordno')} #${esc(o.no)} · ${t('table')} ${esc(o.table)}`}</span><span>₹${owed(o)}</span></h3>
+    <ul>${(o.items||[]).map(i=>`<li>${esc(i.q)} × ${esc(i.n)}${i.s?` (${esc(i.s)})`:''}${i.d?` <small>${esc(i.d)}</small>`:''}</li>`).join('')}</ul>
+    ${o.discount?`<small>${t('free')} −₹${o.discount}</small>`:''}
     ${o.note?`<small>${esc(o.note)}</small>`:''}
     ${cx?'':`<div class="steps" aria-hidden="true">${ST.map((x,i)=>`<i class="${i<=k?'on':''}"></i>`).join('')}</div>`}
     <div class="row"><span class="stx">${t('st_'+o.status)}</span><small>${cx?'':t(o.paid?'paid':'unpaid')}</small></div>
+    ${eta}${st}${rate}
     ${o.status==='new'?`<button class="linkbtn" data-cancel="${esc(o.id)}">${t('cancel')}</button>`:''}</div>`}).join('');
 }
 $('#myBtn').onclick=()=>$('#myDlg').showModal();
-$('#myList').onclick=async e=>{const b=e.target.closest('[data-cancel]');if(!b)return;b.disabled=true;try{await APP.cancelHook(b.dataset.cancel)}catch(err){console.error(err);b.disabled=false;toast(t('err'))}};
+$('#myList').onclick=async e=>{
+  const s=e.target.closest('[data-star]');if(s){pick[s.dataset.o]=+s.dataset.star;renderMine();return}
+  const r=e.target.closest('[data-rate]');
+  if(r){r.disabled=true;const c=document.getElementById('rc-'+r.dataset.rate);
+    try{await APP.rateHook(r.dataset.rate,pick[r.dataset.rate],(c?c.value:'').trim().slice(0,300))}catch(err){console.error(err);r.disabled=false;toast(t('err'))}return}
+  const b=e.target.closest('[data-cancel]');if(!b)return;b.disabled=true;try{await APP.cancelHook(b.dataset.cancel)}catch(err){console.error(err);b.disabled=false;toast(t('err'))}
+};
 
 /* ---------- builder ---------- */
 const bpz=$('#bpz');
@@ -540,7 +650,7 @@ $('#resetBtn').onclick=()=>{B.layers={};B.pieces=[];bTops.innerHTML='';bpz.class
 $('#bakeBtn').onclick=()=>{const f=bpz.querySelector('.flame');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');bpz.classList.add('baked')};
 $('#bAdd').onclick=()=>{
   const d=l=>[SAUCE[B.sauce][l],...Object.entries(B.layers).map(([id,n])=>T[id][l]+(n>1?' x'+n:''))].join(', ');
-  addCart({key:'c'+Date.now(),en:STR.en.custom,hi:STR.hi.custom,size:B.size,price:bPrice(),detail:{en:d('en'),hi:d('hi')}});
+  addCart({key:'c'+Date.now(),k:'custom',sauce:B.sauce,tops:{...B.layers},en:STR.en.custom,hi:STR.hi.custom,size:B.size,price:bPrice(),detail:{en:d('en'),hi:d('hi')}});
 };
 // tap, keyboard or drag (pointer events, so it works on touch too)
 $('#bTops').addEventListener('click',e=>{
@@ -587,7 +697,7 @@ function renderAll(){
   document.documentElement.lang=lang;document.title=D.shop['name_'+lang];
   $('#shop').textContent=D.shop['name_'+lang];$('#tag').innerHTML=(okTable()?`<span class="tblno">${t('table')} ${TABLE}</span>`:'')+esc(D.shop['tag_'+lang]);
   $('#langBtn').textContent=t('lang');$('#fsBtn').setAttribute('aria-label',t('fs'));$('#fsBtn').title=t('fs');$('#tabMenu').textContent=t('menu');$('#tabBuild').textContent=t('build');
-  renderMenu();renderBuilder();renderCart();renderMine();
+  renderMenu();renderExtras();renderBuilder();renderCart();renderMine();renderCallbar();
 }
 $('#langBtn').onclick=()=>{lang=lang==='en'?'hi':'en';try{localStorage.setItem('lang',lang)}catch(e){}renderAll()};
 renderAll();
@@ -611,10 +721,15 @@ A.onAuthStateChanged(auth,u=>{
     const since=Date.now()-12*3600e3,ms=o=>o.createdAt?o.createdAt.toMillis():Infinity;
     APP.mine(qs.docs.map(d=>({id:d.id,no:d.id.slice(-4).toUpperCase(),...d.data({serverTimestamps:'estimate'})})).filter(o=>ms(o)>since).sort((a,b)=>ms(b)-ms(a)));
   },e=>console.error(e));
-  APP.sendHook=o=>F.addDoc(F.collection(db,'orders'),{...o,status:'new',paid:false,uid:u.uid,createdAt:F.serverTimestamp(),updatedAt:F.serverTimestamp()});
+  // Each write also stamps limits/{uid}_kind; the rules refuse a second one within 20 seconds.
+  const stamped=(kind,ref,data)=>{const b=F.writeBatch(db);b.set(F.doc(db,'limits',u.uid+'_'+kind),{last:F.serverTimestamp()});b.set(ref,data);return b.commit()};
+  APP.sendHook=o=>stamped('order',F.doc(F.collection(db,'orders')),{...o,status:'new',paid:false,uid:u.uid,createdAt:F.serverTimestamp(),updatedAt:F.serverTimestamp()});
+  APP.reqHook=(kind,table)=>stamped('req',F.doc(F.collection(db,'requests')),{kind,table,uid:u.uid,done:false,createdAt:F.serverTimestamp()});
   APP.cancelHook=id=>F.updateDoc(F.doc(db,'orders',id),{status:'cancelled',updatedAt:F.serverTimestamp()});
+  APP.rateHook=(id,rating,comment)=>F.updateDoc(F.doc(db,'orders',id),{rating,comment,updatedAt:F.serverTimestamp()});
   APP.refresh();
 });
 </script>
+
 </body>
 </html>

@@ -1,10 +1,15 @@
 rules_version = '2';
 
 // Angaar Pizza orders.
-//   config/shop  {tables, open, name}        public read, admin write
-//   config/menu  {soldOut: [ids], prices: {pizzaId: rupees}}   public read, admin write
-//   staff/{uid}  {name, email, role: admin|counter, active, createdAt}
-//   orders/{id}  {table, items, total, note, status, paid, uid, createdAt, updatedAt, by}
+//   config/shop    {tables, open, name, takeaway, upi, payee, gstin, gst, review, loyaltyEvery}   public read, admin write
+//   config/menu    {soldOut: [ids], prices: {itemId: rupees}}   public read, admin write
+//   staff/{uid}    {name, email, role: admin|counter, active, createdAt}
+//   orders/{id}    {type, table, name, phone, items, total, note, status, paid, uid, createdAt, updatedAt,
+//                   by, eta, acceptedAt, discount, stamps, billNo, rating, comment}
+//   requests/{id}  {table, kind: staff|bill, uid, done, createdAt, doneBy}   "call staff" and "bring the bill"
+//   limits/{uid_order|uid_req}  {last}   one order per 20 s and one request per 20 s per phone
+//   customers/{phone}  loyalty stamps and visit history, staff only
+//   counters/bill  {n}   running bill number, staff only
 // Customers sign in anonymously; staff sign in with email and password.
 service cloud.firestore {
   match /databases/{db}/documents {
@@ -12,18 +17,30 @@ service cloud.firestore {
     function withPassword() { return signedIn() && request.auth.token.firebase.sign_in_provider == 'password'; }
     function staffPath(uid) { return /databases/$(db)/documents/staff/$(uid); }
     function shopPath() { return /databases/$(db)/documents/config/shop; }
+    function shop() { return get(shopPath()).data; }
+    function limitPath(id) { return /databases/$(db)/documents/limits/$(id); }
     function isStaff() {
       return withPassword() && exists(staffPath(request.auth.uid)) && get(staffPath(request.auth.uid)).data.active == true;
     }
     function isAdmin() { return isStaff() && get(staffPath(request.auth.uid)).data.role == 'admin'; }
-    function validTables(d) { return d.tables is int && d.tables >= 1 && d.tables <= 200 && d.open is bool; }
+    function str(d, k, n) { return !(k in d) || (d[k] is string && d[k].size() <= n); }
+    function validShop(d) {
+      return d.tables is int && d.tables >= 1 && d.tables <= 200 && d.open is bool
+        && str(d, 'name', 60) && str(d, 'upi', 60) && str(d, 'payee', 60) && str(d, 'gstin', 20) && str(d, 'review', 300)
+        && (!('takeaway' in d) || d.takeaway is bool)
+        && (!('gst' in d) || (d.gst is number && d.gst >= 0 && d.gst <= 28))
+        && (!('loyaltyEvery' in d) || (d.loyaltyEvery is int && d.loyaltyEvery >= 0 && d.loyaltyEvery <= 50));
+    }
+    function validPhone(p) { return p is string && (p == '' || p.matches('^[6-9][0-9]{9}$')); }
+    // The client stamps limits/{uid}_kind with the server time in the same batch as the order or request.
+    function stamped(kind) { return getAfter(limitPath(request.auth.uid + '_' + kind)).data.last == request.time; }
 
     match /config/shop {
       allow read: if true;
       // First set-up: created in the same batch as the owner's own staff record.
-      allow create: if withPassword() && validTables(request.resource.data)
+      allow create: if withPassword() && validShop(request.resource.data)
         && getAfter(staffPath(request.auth.uid)).data.role == 'admin';
-      allow update: if isAdmin() && validTables(request.resource.data);
+      allow update: if isAdmin() && validShop(request.resource.data);
     }
 
     match /config/menu {
@@ -48,34 +65,87 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Spam brake: a phone can stamp its limit doc at most once every 20 seconds.
+    match /limits/{id} {
+      allow read: if false;
+      allow create: if signedIn() && (id == request.auth.uid + '_order' || id == request.auth.uid + '_req')
+        && request.resource.data.keys().hasOnly(['last']) && request.resource.data.last == request.time;
+      allow update: if signedIn() && (id == request.auth.uid + '_order' || id == request.auth.uid + '_req')
+        && request.resource.data.keys().hasOnly(['last']) && request.resource.data.last == request.time
+        && resource.data.last < request.time - duration.value(20, 's');
+      allow delete: if false;
+    }
+
     match /orders/{id} {
       allow read: if isStaff() || (signedIn() && resource.data.uid == request.auth.uid);
 
-      allow create: if signedIn()
-        && request.resource.data.keys().hasOnly(['table', 'items', 'total', 'note', 'status', 'paid', 'uid', 'createdAt', 'updatedAt'])
+      allow create: if signedIn() && stamped('order')
+        && request.resource.data.keys().hasOnly(['type', 'table', 'name', 'phone', 'items', 'total', 'note', 'status', 'paid', 'uid', 'createdAt', 'updatedAt'])
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == 'new' && request.resource.data.paid == false
-        && request.resource.data.table is int && request.resource.data.table >= 1
-        && request.resource.data.table <= get(shopPath()).data.tables
-        && get(shopPath()).data.open == true
+        && shop().open == true
+        && request.resource.data.name is string && request.resource.data.name.size() <= 40
+        && validPhone(request.resource.data.phone)
+        && request.resource.data.table is int
+        && ((request.resource.data.type == 'table'
+              && request.resource.data.table >= 1 && request.resource.data.table <= shop().tables)
+            || (request.resource.data.type == 'takeaway' && request.resource.data.table == 0
+              && shop().get('takeaway', false) == true
+              && request.resource.data.name.size() > 0 && request.resource.data.phone != ''))
         && request.resource.data.items is list
         && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 40
         && request.resource.data.total is int && request.resource.data.total > 0 && request.resource.data.total < 200000
         && request.resource.data.note is string && request.resource.data.note.size() <= 200
         && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
 
-      // Staff move an order along and mark it paid.
+      // Staff move an order along, set the ready time, apply a loyalty discount, mark it paid and number the bill.
       allow update: if isStaff()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'paid', 'updatedAt', 'by'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'paid', 'updatedAt', 'by', 'eta', 'acceptedAt', 'discount', 'stamps', 'billNo'])
         && request.resource.data.status in ['new', 'accepted', 'ready', 'served', 'cancelled']
-        && request.resource.data.paid is bool && request.resource.data.updatedAt == request.time;
+        && request.resource.data.paid is bool && request.resource.data.updatedAt == request.time
+        && (!('discount' in request.resource.data) || (request.resource.data.discount is int
+              && request.resource.data.discount >= 0 && request.resource.data.discount <= request.resource.data.total))
+        && (!('eta' in request.resource.data) || (request.resource.data.eta is int && request.resource.data.eta > 0 && request.resource.data.eta <= 120));
 
       // A customer can cancel their own order until the counter accepts it.
       allow update: if signedIn() && resource.data.uid == request.auth.uid && resource.data.status == 'new'
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
         && request.resource.data.status == 'cancelled' && request.resource.data.updatedAt == request.time;
 
+      // ...and rate it once after it is served.
+      allow update: if signedIn() && resource.data.uid == request.auth.uid && resource.data.status == 'served'
+        && !('rating' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'comment', 'updatedAt'])
+        && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.comment is string && request.resource.data.comment.size() <= 300
+        && request.resource.data.updatedAt == request.time;
+
       allow delete: if false;
+    }
+
+    match /requests/{id} {
+      allow read: if isStaff() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow create: if signedIn() && stamped('req')
+        && request.resource.data.keys().hasOnly(['table', 'kind', 'uid', 'done', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid && request.resource.data.kind in ['staff', 'bill']
+        && request.resource.data.table is int && request.resource.data.table >= 1 && request.resource.data.table <= shop().tables
+        && request.resource.data.done == false && request.resource.data.createdAt == request.time;
+      allow update: if isStaff()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['done', 'doneBy'])
+        && request.resource.data.done is bool;
+      allow delete: if false;
+    }
+
+    match /customers/{phone} {
+      allow read: if isStaff();
+      allow write: if isStaff() && phone.matches('^[6-9][0-9]{9}$')
+        && request.resource.data.stamps is int && request.resource.data.stamps >= 0;
+    }
+
+    match /counters/bill {
+      allow read: if isStaff();
+      allow write: if isStaff() && request.resource.data.n is int
+        && (resource == null || request.resource.data.n == resource.data.n + 1);
     }
   }
 }

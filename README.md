@@ -15,14 +15,25 @@ see its status change live. Staff work from a separate login page.
 
 | | Customer (no login) | Counter | Owner |
 |---|---|---|---|
-| Browse menu, build a pizza, order to their table | yes | | |
-| See their own orders live, cancel before accepted | yes | | |
-| See all of today's orders, accept, reject, mark ready / served / paid | | yes | yes |
-| Bills by table, mark a whole table paid | | yes | yes |
+| Browse pizzas, sides, desserts and drinks; build a pizza | yes | | |
+| Order to their table, or takeaway with name and mobile | yes | | |
+| See their orders live with a ready time; cancel before accepted | yes | | |
+| Call staff or ask for the bill from the table | yes | | |
+| Pay by UPI from the phone; rate the order after it is served | yes | | |
+| Collect loyalty stamps with their mobile number | yes | | |
+| Live board of today's orders; accept with a ready time, mark ready / served / paid | | yes | yes |
+| See "call staff" and "bring the bill" requests, with a beep | | yes | yes |
+| Price check: orders whose prices do not match the menu are flagged red | | yes | yes |
+| Give a free pizza when a customer has enough stamps | | yes | yes |
+| Print GST bills (numbered, with a UPI pay code) and kitchen tickets | | yes | yes |
 | Open or close ordering, prices, sold-out items | | | yes |
-| Number of tables, print table QR codes | | | yes |
+| Number of tables, print table and takeaway QR codes | | | yes |
 | Add staff, change roles, switch logins off, send password resets | | | yes |
-| Today's sales, best sellers, sales by table | | | yes |
+| Today's sales, ratings and comments, loyalty customer list (CSV) | | | yes |
+| Settings: UPI ID, GSTIN and GST rate, takeaway on/off, review link, loyalty rule | | | yes |
+
+Each phone can send at most one order and one request every 20 seconds. For extra bot protection,
+add a reCAPTCHA v3 key to `APP_CHECK_KEY` in `src/fb.js` and turn on App Check in the Firebase console.
 
 The first visit to the staff page asks for the owner's name, email, password and number of
 tables. That runs once; after that the page is a normal sign-in. The rules in `firestore.rules`
@@ -32,7 +43,7 @@ enforce all of the above on the server, so hiding a button is never the only pro
 - `05-site/artifact.html`: the same page without the outer page tags, for publishing as a Claude artifact.
 - `05-site/staff.html`, `05-site/fb.js`, `05-site/menu.json`: the staff site, the shared Firebase set-up and the menu data it reads (copied from `src/` by the build).
 - `src/index.html`, `src/staff.html`, `src/fb.js`: edit these, not the built files.
-- `firestore.rules`: who may read and write what. `tests/rules.test.mjs` checks it (29 cases).
+- `firestore.rules`: who may read and write what. `tests/rules.test.mjs` checks it (58 cases).
 - `process.py`: cuts the photos in `03-images/` into transparent WebP pieces (`04-processed/`) and builds `05-site/`.
 - `02-data/menu.json`: menu data (pizzas, sauces, toppings, prices) in English and Hindi.
 - `03-images/PROMPTS.md`: the image prompts used to generate the photos.
@@ -66,6 +77,6 @@ npx firebase-tools deploy --only firestore,auth --project angaar-pizza-orders
 ## Before using it for a real shop
 
 - Change the shop name in `src/index.html` and the Firebase config in `src/fb.js` to the shop's own project.
-- Prices sent with an order come from the customer's phone; the counter should glance at the total before accepting.
+- Prices sent with an order come from the customer's phone. The counter screen re-checks every line against the menu and flags any mismatch in red; reject those.
 - Set `"url"` in the shop data to the public address of the menu, so the QR code points to it.
 - Have the owner check every price and a native speaker read the Hindi.

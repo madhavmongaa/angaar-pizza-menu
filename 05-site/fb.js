@@ -3,6 +3,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, connectAuthEmulator } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getFirestore, connectFirestoreEmulator } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js';
 
 export const config = {
   apiKey: 'AIzaSyDXJ883bTiX3l7nrI1bd6xqTWJv9TPzXmI',
@@ -16,7 +17,14 @@ export const config = {
 // On this computer (localhost) everything talks to the local emulators, never the live database.
 export const EMU = ['localhost', '127.0.0.1'].includes(location.hostname);
 
+// Bot protection. Paste a reCAPTCHA v3 site key here (Firebase console > App Check > register the web app),
+// publish, then press "Enforce" for Firestore in that console page. Empty = off.
+export const APP_CHECK_KEY = '';
+
 export const app = initializeApp(config);
+if (APP_CHECK_KEY && !['localhost', '127.0.0.1'].includes(location.hostname)) {
+  initializeAppCheck(app, { provider: new ReCaptchaV3Provider(APP_CHECK_KEY), isTokenAutoRefreshEnabled: true });
+}
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 if (EMU) {

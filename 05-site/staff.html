@@ -9,14 +9,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#eef9f3;--card:#fff;--ink:#16302a;--mut:#56706a;--mint:#c4ecd9;--mint2:#1f8a66;--red:#d8412f;--amber:#b86e00;--line:#d3e9de;--onmint:#fff;--shadow:0 4px 14px rgba(20,60,45,.09);color-scheme:light}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a17;--card:#17251f;--ink:#e9f5ef;--mut:#9db5ab;--mint:#1f4336;--mint2:#63d1a6;--red:#ff6a55;--amber:#f0a73a;--line:#263b33;--onmint:#0f1a17;--shadow:0 4px 14px rgba(0,0,0,.4);color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0f1a17;--card:#17251f;--ink:#e9f5ef;--mut:#9db5ab;--mint:#1f4336;--mint2:#63d1a6;--red:#ff6a55;--amber:#f0a73a;--line:#263b33;--onmint:#0f1a17;--shadow:0 4px 14px rgba(0,0,0,.4);color-scheme:dark}
+:root{--bg:#eef9f3;--card:#fff;--ink:#16302a;--mut:#56706a;--mint:#c4ecd9;--mint2:#1f8a66;--red:#d8412f;--amber:#b86e00;--warnbg:#fde8e4;--line:#d3e9de;--onmint:#fff;--gold:#b98900;--shadow:0 4px 14px rgba(20,60,45,.09);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a17;--card:#17251f;--ink:#e9f5ef;--mut:#9db5ab;--mint:#1f4336;--mint2:#63d1a6;--red:#ff6a55;--amber:#f0a73a;--warnbg:#3a1d18;--line:#263b33;--onmint:#0f1a17;--gold:#f2c14e;--shadow:0 4px 14px rgba(0,0,0,.4);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1a17;--card:#17251f;--ink:#e9f5ef;--mut:#9db5ab;--mint:#1f4336;--mint2:#63d1a6;--red:#ff6a55;--amber:#f0a73a;--warnbg:#3a1d18;--line:#263b33;--onmint:#0f1a17;--gold:#f2c14e;--shadow:0 4px 14px rgba(0,0,0,.4);color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Nunito,system-ui,sans-serif}
 h1,h2,h3{font-family:"Baloo 2",sans-serif;margin:0;line-height:1.15;text-wrap:balance}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
-input,select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;min-height:42px;width:100%}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;min-height:42px;width:100%}
 :focus-visible{outline:3px solid var(--mint2);outline-offset:2px}
 [hidden]{display:none!important}
 .wrap{max-width:1280px;margin:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -32,6 +32,7 @@ main{padding-block:16px 40px}
 .btn{min-height:40px;padding:6px 16px;border-radius:10px;background:var(--red);color:#fff;font-weight:800}
 .btn.alt{background:var(--mint2);color:var(--onmint)}
 .btn.ghost{background:var(--mint);color:var(--ink)}
+.btn.gold{background:var(--gold);color:#1b1300}
 .btn.sm{min-height:34px;padding:4px 12px;font-size:.85rem}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .sw{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:4px 12px;border-radius:999px;font-weight:800;border:1.5px solid var(--line);background:var(--card)}
@@ -41,8 +42,14 @@ main{padding-block:16px 40px}
 .narrow{max-width:420px;margin:40px auto}
 .narrow form{display:grid;gap:12px}
 label{display:grid;gap:4px;font-weight:700;font-size:.85rem}
+label.chk{display:flex;align-items:center;gap:8px}
 .err{color:var(--red);font-weight:700;min-height:1.2em;margin:0}
 .mut{color:var(--mut)}
+.reqs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.req{display:flex;align-items:center;gap:10px;background:var(--red);color:#fff;border-radius:14px;padding:8px 8px 8px 14px;font-weight:800;animation:pop 1.2s ease 2}
+.req.bill{background:var(--gold);color:#1b1300}
+.req small{font-weight:600;opacity:.85}
+.req .btn{background:rgba(255,255,255,.9);color:#16302a}
 .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
 @media(max-width:900px){.cols{grid-template-columns:minmax(0,1fr)}}
 .col h2{font-size:1.1rem;display:flex;align-items:center;gap:8px;margin-bottom:10px}
@@ -52,19 +59,23 @@ label{display:grid;gap:4px;font-weight:700;font-size:.85rem}
 .o.new{border-left-color:var(--red)}.o.accepted{border-left-color:var(--amber)}.o.ready{border-left-color:var(--mint2)}
 .o.fresh{animation:pop 1.2s ease 2}
 @keyframes pop{50%{box-shadow:0 0 0 4px var(--red)}}
-.oh{display:flex;align-items:baseline;gap:8px}
+.oh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .tno{font:800 1.6rem "Baloo 2",sans-serif}
-.oh .meta{flex:1;font-size:.8rem;color:var(--mut)}
+.tk{font:800 1rem "Baloo 2",sans-serif;background:var(--ink);color:var(--bg);border-radius:6px;padding:0 6px}
+.oh .meta{flex:1;font-size:.8rem;color:var(--mut);min-width:140px}
 .o ul{margin:6px 0;padding-left:18px}
 .o li small{display:block;color:var(--mut)}
 .note{background:var(--mint);border-radius:8px;padding:4px 8px;font-size:.85rem;margin:4px 0}
+.warn{background:var(--warnbg);color:var(--red);border-radius:8px;padding:6px 8px;font-size:.82rem;font-weight:700;margin:4px 0}
+.loy{font-size:.85rem;font-weight:700;color:var(--gold);margin:4px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .ob{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
-.ob .tot{flex:1;font-weight:800}
+.ob .tot{flex:1;font-weight:800;min-width:70px}
+.ob select{width:auto;min-height:34px;padding:2px 6px}
 .tag{font-size:.75rem;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--line)}
 .tag.paid{background:var(--mint2);color:var(--onmint)}
 .empty{color:var(--mut);text-align:center;padding:20px;border:1.5px dashed var(--line);border-radius:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-.bill h3{display:flex;justify-content:space-between;font-size:1.2rem}
+.bill h3{display:flex;justify-content:space-between;font-size:1.2rem;gap:8px}
 .bill .rows{font-size:.9rem;margin:8px 0}
 .bill .rows div{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed var(--line)}
 table{width:100%;border-collapse:collapse;font-size:.9rem}
@@ -80,20 +91,35 @@ input[type=checkbox]{width:22px;height:22px;min-height:0;accent-color:var(--red)
 .row>label{flex:1;min-width:160px}
 .sec{margin-bottom:18px}
 .sec>h2{font-size:1.15rem;margin-bottom:10px}
+.form2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.form2 small{font-weight:400;color:var(--mut)}
 .qrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
 .qr{background:#fff;color:#16302a;border-radius:14px;padding:14px;text-align:center;border:1px solid #d3e9de}
 .qr svg{width:100%;height:auto}
 .qr b{display:block;font:800 1.4rem "Baloo 2",sans-serif;color:#d8412f}
 .qr small{display:block;font-size:.75rem}
+.fb{border-bottom:1px solid var(--line);padding:8px 0}
+.fb b{color:var(--gold)}
 .toast{position:fixed;left:50%;bottom:24px;translate:-50% 20px;z-index:40;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:800;opacity:0;transition:.3s;pointer-events:none}
 .toast.show{opacity:1;translate:-50% 0}
+#printArea{display:none}
 @media print{
   header,.noprint,.toast{display:none!important}
-  body{background:#fff}
+  body{background:#fff;color:#000}
   main{padding:0}
   .qrs{grid-template-columns:repeat(3,1fr)}
   .qr{break-inside:avoid;border:1px solid #999}
+  body[data-print] main{display:none!important}
+  body[data-print] #printArea{display:block;width:76mm;margin:0 auto;font:12px/1.35 "Courier New",monospace;color:#000}
+  @page{margin:6mm}
 }
+#printArea h1{font:800 18px/1.1 "Baloo 2",sans-serif;text-align:center;margin:0}
+#printArea .c{text-align:center}
+#printArea hr{border:0;border-top:1px dashed #000;margin:6px 0}
+#printArea .l{display:flex;justify-content:space-between;gap:6px}
+#printArea .big{font-size:20px;font-weight:800}
+#printArea .kot li{font-size:16px;font-weight:700;margin:4px 0}
+#printArea svg{width:34mm;height:auto;display:block;margin:6px auto}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -148,25 +174,26 @@ input[type=checkbox]{width:22px;height:22px;min-height:0;accent-color:var(--red)
 
   <!-- live orders -->
   <section id="vOrders" hidden>
+    <div class="reqs" id="reqs"></div>
     <div class="cols">
       <div class="col"><h2><i class="dot" style="background:var(--red)"></i>New <span class="n" id="nNew"></span></h2><div id="cNew"></div></div>
       <div class="col"><h2><i class="dot" style="background:var(--amber)"></i>Being made <span class="n" id="nAcc"></span></h2><div id="cAcc"></div></div>
-      <div class="col"><h2><i class="dot" style="background:var(--mint2)"></i>Ready to serve <span class="n" id="nRdy"></span></h2><div id="cRdy"></div></div>
+      <div class="col"><h2><i class="dot" style="background:var(--mint2)"></i>Ready <span class="n" id="nRdy"></span></h2><div id="cRdy"></div></div>
     </div>
   </section>
 
-  <!-- bills by table -->
+  <!-- bills -->
   <section id="vBills" hidden>
     <div class="sec"><h2>Open bills</h2><div class="grid" id="bills"></div></div>
-    <div class="sec"><h2>Paid today</h2><div class="scroll"><table><thead><tr><th>Time</th><th>Table</th><th>Order</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody id="paidRows"></tbody></table></div></div>
+    <div class="sec"><h2>Paid today</h2><div class="scroll"><table><thead><tr><th>Time</th><th>Bill</th><th>For</th><th>Order</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody id="paidRows"></tbody></table></div></div>
   </section>
 
   <!-- owner: menu -->
   <section id="vMenu" hidden>
     <div class="sec card">
-      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><h2>Pizzas</h2><button class="btn alt" id="saveMenu">Save menu</button></div>
-      <p class="mut" style="margin-top:0">Price is for the Regular size; Medium and Large scale from it. Ticking "Sold out" greys the item out on every phone straight away.</p>
-      <div class="scroll"><table><thead><tr><th>Pizza</th><th>Regular price (₹)</th><th>Sold out</th></tr></thead><tbody id="pzRows"></tbody></table></div>
+      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><h2>Pizzas, sides and drinks</h2><button class="btn alt" id="saveMenu">Save menu</button></div>
+      <p class="mut" style="margin-top:0">Pizza prices are for the Regular size; Medium and Large scale from it. Ticking "Sold out" greys the item out on every phone straight away.</p>
+      <div class="scroll"><table><thead><tr><th>Item</th><th>Price (₹)</th><th>Sold out</th></tr></thead><tbody id="pzRows"></tbody></table></div>
     </div>
     <div class="sec card">
       <h2 style="margin-bottom:8px">Toppings for "Make your own"</h2>
@@ -182,7 +209,7 @@ input[type=checkbox]{width:22px;height:22px;min-height:0;accent-color:var(--red)
         <button class="btn alt" id="saveTbl">Save</button>
         <button class="btn ghost" id="printBtn">Print QR codes</button>
       </div>
-      <p class="mut">Stick each code on its table. Scanning it opens the menu with that table number already filled in.</p>
+      <p class="mut">Stick each code on its table. Scanning it opens the menu with that table number already filled in. The takeaway code (when takeaway is on in Settings) goes at the entrance or on the counter.</p>
     </div>
     <div class="qrs" id="qrs"></div>
   </section>
@@ -212,9 +239,34 @@ input[type=checkbox]{width:22px;height:22px;min-height:0;accent-color:var(--red)
     <div class="grid">
       <div class="card"><h2 style="margin-bottom:8px">Best sellers today</h2><div class="scroll"><table><thead><tr><th>Item</th><th>Qty</th><th>₹</th></tr></thead><tbody id="topRows"></tbody></table></div></div>
       <div class="card"><h2 style="margin-bottom:8px">By table</h2><div class="scroll"><table><thead><tr><th>Table</th><th>Orders</th><th>₹</th></tr></thead><tbody id="byTbl"></tbody></table></div></div>
+      <div class="card"><h2 style="margin-bottom:8px">Feedback today</h2><div id="fbList"></div></div>
+    </div>
+    <div class="card sec" style="margin-top:14px">
+      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><h2>Loyalty customers</h2><button class="btn ghost sm" id="csvBtn">Download list (CSV)</button></div>
+      <div class="scroll"><table><thead><tr><th>Name</th><th>Mobile</th><th>Orders</th><th>Pizzas</th><th>Spent</th><th>Stamps</th></tr></thead><tbody id="custRows"></tbody></table></div>
     </div>
   </section>
+
+  <!-- owner: settings -->
+  <section id="vSettings" hidden>
+    <form id="setF" class="card sec">
+      <h2 style="margin-bottom:12px">Shop settings</h2>
+      <div class="form2">
+        <label>Name on bills<input name="name" maxlength="60"></label>
+        <label class="chk"><input type="checkbox" name="takeaway"> Accept takeaway orders</label>
+        <label>UPI ID <small>e.g. angaarpizza@okhdfcbank. Leave empty to hide the Pay button.</small><input name="upi" maxlength="60" autocomplete="off"></label>
+        <label>Name shown in the UPI app<input name="payee" maxlength="60"></label>
+        <label>GSTIN <small>Printed on bills. Leave empty if not registered.</small><input name="gstin" maxlength="20"></label>
+        <label>GST rate % <small>Menu prices already include it; bills show the split.</small><input name="gst" type="number" min="0" max="28" step="0.5"></label>
+        <label>Google review link <small>Shown to customers who give 4 or 5 stars.</small><input name="review" type="url" maxlength="300" placeholder="https://g.page/r/…/review"></label>
+        <label>Free pizza after this many pizzas <small>0 turns loyalty stamps off.</small><input name="loyaltyEvery" type="number" min="0" max="50"></label>
+      </div>
+      <p class="err" id="setErr" role="alert"></p>
+      <button class="btn alt">Save settings</button>
+    </form>
+  </section>
 </main>
+<div id="printArea"></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -222,13 +274,13 @@ input[type=checkbox]{width:22px;height:22px;min-height:0;accent-color:var(--red)
 import { auth, db, secondaryAuth, EMU } from './fb.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { doc, getDoc, setDoc, updateDoc, writeBatch, collection, query, where, orderBy, onSnapshot, serverTimestamp, Timestamp }
+import { doc, getDoc, setDoc, updateDoc, writeBatch, runTransaction, collection, query, where, orderBy, onSnapshot, serverTimestamp, Timestamp }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const rs = n => '₹' + Number(n || 0).toLocaleString('en-IN');
-let tt; const toast = m => { const e = $('#toast'); e.textContent = m; e.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => e.classList.remove('show'), 2200); };
+const rs = n => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+let tt; const toast = m => { const e = $('#toast'); e.textContent = m; e.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => e.classList.remove('show'), 2400); };
 const friendly = e => ({
   'auth/invalid-credential': 'Wrong email or password.', 'auth/wrong-password': 'Wrong email or password.', 'auth/user-not-found': 'Wrong email or password.',
   'auth/email-already-in-use': 'That email already has an account.', 'auth/weak-password': 'Use at least 6 characters.',
@@ -236,13 +288,16 @@ const friendly = e => ({
   'permission-denied': 'This account is not allowed to do that.',
 }[e.code] || e.message);
 
-const MENU = await fetch('./menu.json').then(r => r.json());
-const MENU_URL = MENU.shop.url.replace(/\/?$/, '/');
-$('#shopName').textContent = MENU.shop.name_en;
+/* ---------- menu data, for names and the price check ---------- */
+const M = await fetch('./menu.json', { cache: 'no-cache' }).then(r => r.json());
+const MENU_URL = M.shop.url.replace(/\/?$/, '/');
+const PZ = Object.fromEntries(M.pizzas.map(p => [p.id, p])), EX = Object.fromEntries(M.extras.map(x => [x.id, x]));
+const SA = Object.fromEntries(M.sauces.map(s => [s.id, s])), TP = Object.fromEntries(M.toppings.map(a => [a[0], a]));
 
-const VIEWS = { vLogin: 0, vSetup: 0, vNo: 0, vOrders: 1, vBills: 1, vMenu: 2, vTables: 2, vStaff: 2, vSales: 2 };
-const TABS = [['vOrders', 'Orders'], ['vBills', 'Bills'], ['vMenu', 'Menu', 1], ['vTables', 'Tables & QR', 1], ['vStaff', 'Staff', 1], ['vSales', 'Sales', 1]];
-let me = null, shop = null, cfgMenu = { soldOut: [], prices: {} }, orders = [], staff = [], tab = 'vOrders', subs = [];
+const VIEWS = { vLogin: 0, vSetup: 0, vNo: 0, vOrders: 1, vBills: 1, vMenu: 2, vTables: 2, vStaff: 2, vSales: 2, vSettings: 2 };
+const TABS = [['vOrders', 'Orders'], ['vBills', 'Bills'], ['vMenu', 'Menu', 1], ['vTables', 'Tables & QR', 1], ['vStaff', 'Staff', 1], ['vSales', 'Sales', 1], ['vSettings', 'Settings', 1]];
+let me = null, shop = null, cfgMenu = { soldOut: [], prices: {} }, orders = [], reqs = [], staff = [], CUST = {}, tab = 'vOrders', subs = [];
+const shopName = () => shop?.name || M.shop.name_en;
 function show(v) {
   $('#loading').hidden = true;
   for (const id in VIEWS) $('#' + id).hidden = id !== v;
@@ -250,7 +305,7 @@ function show(v) {
   if (VIEWS[v]) { tab = v; try { localStorage.setItem('tab', v); } catch (e) {} renderNav(); }
 }
 function renderNav() {
-  const n = orders.filter(o => o.status === 'new').length;
+  const n = orders.filter(o => o.status === 'new').length + reqs.length;
   $('#nav').innerHTML = TABS.filter(t => !t[2] || me?.role === 'admin')
     .map(([id, label]) => `<button role="tab" data-v="${id}" aria-selected="${id === tab}">${label}${id === 'vOrders' && n ? `<span class="badge">${n}</span>` : ''}</button>`).join('');
   document.title = (n ? `(${n}) ` : '') + 'Angaar Counter';
@@ -261,7 +316,7 @@ $('#outBtn').onclick = () => signOut(auth);
 
 /* ---------- who is signed in ---------- */
 onAuthStateChanged(auth, async u => {
-  subs.forEach(f => f()); subs = []; me = null; orders = []; staff = [];
+  subs.forEach(f => f()); subs = []; me = null; orders = []; reqs = []; staff = []; CUST = {};
   shop = (await getDoc(doc(db, 'config', 'shop')).catch(() => null))?.data() || null;
   if (!u || u.isAnonymous) return show(shop ? 'vLogin' : 'vSetup');
   const s = await getDoc(doc(db, 'staff', u.uid)).catch(() => null);
@@ -296,7 +351,8 @@ $('#setupF').onsubmit = async e => {
     catch (err) { if (err.code !== 'auth/email-already-in-use') throw err; cred = await signInWithEmailAndPassword(auth, email, f.get('pw')); }
     const b = writeBatch(db);
     b.set(doc(db, 'staff', cred.user.uid), { name: f.get('name').trim(), email, role: 'admin', active: true, createdAt: serverTimestamp() });
-    b.set(doc(db, 'config', 'shop'), { name: MENU.shop.name_en, tables: Math.max(1, Math.min(200, +f.get('tables') || 12)), open: true });
+    b.set(doc(db, 'config', 'shop'), { name: M.shop.name_en, tables: Math.max(1, Math.min(200, +f.get('tables') || 12)), open: true,
+      takeaway: true, upi: '', payee: M.shop.name_en, gstin: '', gst: 5, review: '', loyaltyEvery: 6 });
     await b.commit();
     await setDoc(doc(db, 'config', 'menu'), { soldOut: [], prices: {} });
     location.reload();
@@ -304,10 +360,10 @@ $('#setupF').onsubmit = async e => {
 };
 
 /* ---------- live data ---------- */
-let seen = null, sound = false, actx = null;
-function beep() {
+let seen = null, seenReq = null, sound = false, actx = null;
+function beep(hi) {
   if (!sound || !actx) return;
-  [0, .18].forEach(d => { const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = 880; o.connect(g); g.connect(actx.destination);
+  [0, .18].forEach(d => { const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = hi ? 1175 : 880; o.connect(g); g.connect(actx.destination);
     g.gain.setValueAtTime(.0001, actx.currentTime + d); g.gain.exponentialRampToValueAtTime(.3, actx.currentTime + d + .02); g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + d + .15);
     o.start(actx.currentTime + d); o.stop(actx.currentTime + d + .16); });
 }
@@ -322,41 +378,104 @@ function startLive() {
     seen = ids; if (fresh.length) { beep(); toast(fresh.length === 1 ? 'New order' : fresh.length + ' new orders'); }
     renderAll(new Set(fresh));
   }, err => toast(friendly(err))));
-  subs.push(onSnapshot(doc(db, 'config', 'shop'), d => { shop = d.data() || shop; renderAll(); }));
-  subs.push(onSnapshot(doc(db, 'config', 'menu'), d => { cfgMenu = { soldOut: [], prices: {}, ...d.data() }; if (tab !== 'vMenu' || !menuDirty) renderMenuTab(); }));
+  subs.push(onSnapshot(query(collection(db, 'requests'), where('done', '==', false)), qs => {
+    reqs = qs.docs.map(d => ({ id: d.id, ...d.data({ serverTimestamps: 'estimate' }) })).sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
+    const ids = new Set(reqs.map(r => r.id)), fresh = seenReq ? [...ids].filter(i => !seenReq.has(i)) : [];
+    seenReq = ids; if (fresh.length) { beep(true); const r = reqs.find(x => x.id === fresh[0]); toast(`Table ${r.table}: ${r.kind === 'bill' ? 'bring the bill' : 'needs staff'}`); }
+    renderNav(); if (tab === 'vOrders') renderReqs();
+  }, err => toast(friendly(err))));
+  subs.push(onSnapshot(collection(db, 'customers'), qs => { CUST = Object.fromEntries(qs.docs.map(d => [d.id, d.data()])); renderAll(); }));
+  subs.push(onSnapshot(doc(db, 'config', 'shop'), d => { shop = d.data() || shop; $('#shopName').textContent = shopName(); renderAll(); }));
+  subs.push(onSnapshot(doc(db, 'config', 'menu'), d => { cfgMenu = { soldOut: [], prices: {}, ...d.data() }; if (tab !== 'vMenu' || !menuDirty) renderMenuTab(); renderAll(); }));
   if (me.role === 'admin') subs.push(onSnapshot(collection(db, 'staff'), qs => { staff = qs.docs.map(d => ({ uid: d.id, ...d.data() })); renderStaff(); }));
 }
-setInterval(() => { if (me && tab === 'vOrders') renderOrders(); }, 30000);
+setInterval(() => { if (me && tab === 'vOrders') { renderOrders(); renderReqs(); } }, 30000);
 
 function renderAll(fresh) {
   if (!me) return;
   renderNav();
   const sw = $('#openSw'); sw.classList.toggle('on', !!shop?.open); sw.querySelector('span').textContent = shop?.open ? 'Taking orders' : 'Closed';
   sw.disabled = me.role !== 'admin'; sw.title = me.role === 'admin' ? 'Tap to open or close ordering' : 'Only the owner can change this';
-  if (tab === 'vOrders') renderOrders(fresh);
+  if (tab === 'vOrders') { renderReqs(); renderOrders(fresh); }
   if (tab === 'vBills') renderBills();
   if (tab === 'vMenu' && !menuDirty) renderMenuTab();
   if (tab === 'vTables') renderTables();
   if (tab === 'vStaff') renderStaff();
   if (tab === 'vSales') renderSales();
+  if (tab === 'vSettings' && !setDirty) renderSettings();
 }
 $('#openSw').onclick = async () => {
   if (me?.role !== 'admin') return;
   try { await updateDoc(doc(db, 'config', 'shop'), { open: !shop.open }); toast(shop.open ? 'Ordering closed' : 'Now taking orders'); } catch (e) { toast(friendly(e)); }
 };
 
+/* ---------- helpers ---------- */
+const ms = o => o.createdAt?.toMillis?.() ?? Date.now();
+const ago = o => { const m = Math.round((Date.now() - ms(o)) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : Math.floor(m / 60) + ' h ' + (m % 60) + ' min ago'; };
+const clock = t => new Date(t).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+const owed = o => o.total - (o.discount || 0);
+const isTake = o => o.type === 'takeaway';
+const who = o => isTake(o) ? `Takeaway ${o.no}` : `Table ${o.table}`;
+const pizzas = o => (o.items || []).filter(i => i.k === 'pizza' || i.k === 'custom').reduce((a, i) => a + i.q, 0);
+const every = () => shop?.loyaltyEvery || 0;
+const line = i => `${i.q} × ${i.n}${i.s ? ` (${i.s})` : ''}`;
+
+// Work out what each line should cost from the real menu, so a tampered order stands out.
+const price = id => cfgMenu.prices[id] || (PZ[id] || EX[id] || {}).price;
+function expect(i) {
+  const mult = M.sizes[i.sz]?.mult;
+  if (i.k === 'pizza') return PZ[i.id] && mult ? Math.round(price(i.id) * mult) : null;
+  if (i.k === 'extra') return EX[i.id] ? price(i.id) : null;
+  if (i.k === 'custom') {
+    const sa = SA[i.sauce]; if (!sa || !mult) return null; let sum = 0;
+    for (const [id, n] of Object.entries(i.tops || {})) { if (!TP[id] || !(n >= 1 && n <= 3)) return null; sum += TP[id][4] * n; }
+    return Math.round((M.base + sa.extra + sum) * mult);
+  }
+  return null;
+}
+function check(o) {
+  const bad = []; let sum = 0;
+  for (const i of o.items || []) {
+    if (!(Number.isInteger(i.q) && i.q > 0 && i.q < 100)) bad.push(`${i.n}: odd quantity ${i.q}`);
+    sum += i.q * i.p; const e = expect(i);
+    if (e == null) bad.push(`${i.n}: not on the menu`); else if (e !== i.p) bad.push(`${i.n}: sent ₹${i.p}, menu says ₹${e}`);
+  }
+  if (sum !== o.total) bad.push(`Total ₹${o.total}, but the lines add up to ₹${sum}`);
+  return bad;
+}
+
+/* ---------- call staff / bill requests ---------- */
+function renderReqs() {
+  $('#reqs').innerHTML = reqs.map(r => `<div class="req ${r.kind}"><span>T${esc(r.table)} · ${r.kind === 'bill' ? 'Bring the bill' : 'Needs staff'} <small>${ago(r)}</small></span>
+    <button class="btn sm" data-req="${esc(r.id)}">Done</button></div>`).join('');
+}
+$('#reqs').addEventListener('click', async e => {
+  const b = e.target.closest('[data-req]'); if (!b) return; b.disabled = true;
+  try { await updateDoc(doc(db, 'requests', b.dataset.req), { done: true, doneBy: me.name }); } catch (err) { toast(friendly(err)); b.disabled = false; }
+});
+
 /* ---------- orders board ---------- */
-const ago = o => { const m = Math.round((Date.now() - (o.createdAt?.toMillis?.() ?? Date.now())) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : Math.floor(m / 60) + ' h ' + (m % 60) + ' min ago'; };
-const clock = o => o.createdAt?.toDate ? o.createdAt.toDate().toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }) : '';
-const NEXT = { new: [['accepted', 'Accept', 'alt'], ['cancelled', 'Reject', 'ghost']], accepted: [['ready', 'Mark ready', 'alt']], ready: [['served', 'Served', 'alt']] };
+let etaPick = 15; try { etaPick = +localStorage.getItem('eta') || 15; } catch (e) {}
 function card(o, fresh) {
+  const bad = check(o), c = o.phone ? CUST[o.phone] : null, st = c?.stamps || 0, ev = every();
+  const canFree = ev && o.phone && st >= ev && !o.discount && !o.paid && pizzas(o) > 0 && o.status !== 'cancelled';
+  const nextBtns = {
+    new: `<select data-eta-for="${esc(o.id)}" aria-label="Ready in">${[10, 15, 20, 30, 45].map(m => `<option value="${m}" ${m === etaPick ? 'selected' : ''}>${m} min</option>`).join('')}</select>
+      <button class="btn sm alt" data-id="${esc(o.id)}" data-s="accepted">Accept</button><button class="btn sm ghost" data-id="${esc(o.id)}" data-s="cancelled">Reject</button>`,
+    accepted: `<button class="btn sm alt" data-id="${esc(o.id)}" data-s="ready">Mark ready</button>`,
+    ready: `<button class="btn sm alt" data-id="${esc(o.id)}" data-s="served">${isTake(o) ? 'Handed over' : 'Served'}</button>`,
+  }[o.status] || '';
+  const etaTxt = o.status === 'accepted' && o.eta && o.acceptedAt ? ` · due ${clock(o.acceptedAt.toMillis() + o.eta * 60000)}` : '';
   return `<article class="o ${o.status}${fresh?.has(o.id) ? ' fresh' : ''}">
-    <div class="oh"><span class="tno">T${esc(o.table)}</span><span class="meta">#${esc(o.no)} · ${clock(o)} · ${ago(o)}</span>${o.paid ? '<span class="tag paid">Paid</span>' : ''}</div>
-    <ul>${(o.items || []).map(i => `<li><b>${esc(i.q)} ×</b> ${esc(i.n)} (${esc(i.s)})${i.d ? `<small>${esc(i.d)}</small>` : ''}</li>`).join('')}</ul>
+    <div class="oh">${isTake(o) ? `<span class="tk">TAKEAWAY</span><b>${esc(o.name)}</b>` : `<span class="tno">T${esc(o.table)}</span>`}
+      <span class="meta">#${esc(o.no)} · ${clock(ms(o))} · ${ago(o)}${etaTxt}${o.phone ? ` · ${esc(o.phone)}` : ''}</span>${o.paid ? '<span class="tag paid">Paid</span>' : ''}</div>
+    <ul>${(o.items || []).map(i => `<li><b>${esc(i.q)} ×</b> ${esc(i.n)}${i.s ? ` (${esc(i.s)})` : ''}${i.d ? `<small>${esc(i.d)}</small>` : ''}</li>`).join('')}</ul>
     ${o.note ? `<div class="note">Note: ${esc(o.note)}</div>` : ''}
-    <div class="ob"><span class="tot">${rs(o.total)}</span>
-      ${(NEXT[o.status] || []).map(([s, l, c]) => `<button class="btn sm ${c}" data-id="${esc(o.id)}" data-s="${s}">${l}</button>`).join('')}
+    ${bad.length ? `<div class="warn">Price check: ${bad.map(esc).join('; ')}</div>` : ''}
+    ${o.phone && ev ? `<div class="loy">★ ${st} stamp${st === 1 ? '' : 's'}${o.discount ? ` · free pizza −${rs(o.discount)}` : ''}${canFree ? ` <button class="btn sm gold" data-free="${esc(o.id)}">Give free pizza</button>` : ''}</div>` : ''}
+    <div class="ob"><span class="tot">${rs(owed(o))}</span>${nextBtns}
       <button class="btn sm ghost" data-id="${esc(o.id)}" data-paid="${o.paid ? 0 : 1}">${o.paid ? 'Unpay' : 'Paid'}</button>
+      <button class="btn sm ghost" data-kot="${esc(o.id)}" title="Print a kitchen ticket">KOT</button>
     </div></article>`;
 }
 function renderOrders(fresh) {
@@ -368,71 +487,163 @@ async function setOrder(id, patch, btn) {
   try { await updateDoc(doc(db, 'orders', id), { ...patch, updatedAt: serverTimestamp(), by: me.name }); }
   catch (e) { toast(friendly(e)); if (btn) btn.disabled = false; }
 }
-document.addEventListener('click', e => {
-  const b = e.target.closest('button[data-id]'); if (!b) return;
-  if (b.dataset.s) setOrder(b.dataset.id, { status: b.dataset.s }, b);
-  else if (b.dataset.paid) setOrder(b.dataset.id, { paid: b.dataset.paid === '1' }, b);
+const byId = id => orders.find(o => o.id === id);
+document.addEventListener('click', async e => {
+  const b = e.target.closest('button[data-id],button[data-free],button[data-kot]'); if (!b) return;
+  if (b.dataset.kot) return printKot(byId(b.dataset.kot));
+  if (b.dataset.free) { b.disabled = true; try { await redeem(byId(b.dataset.free)); toast('Free pizza applied'); } catch (err) { toast(friendly(err)); b.disabled = false; } return; }
+  if (b.dataset.s === 'accepted') {
+    const eta = +document.querySelector(`[data-eta-for="${b.dataset.id}"]`).value || 15; etaPick = eta; try { localStorage.setItem('eta', eta); } catch (err) {}
+    return setOrder(b.dataset.id, { status: 'accepted', eta, acceptedAt: serverTimestamp() }, b);
+  }
+  if (b.dataset.s) return setOrder(b.dataset.id, { status: b.dataset.s }, b);
+  if (b.dataset.paid === '1') { b.disabled = true; try { await markPaid([byId(b.dataset.id)]); } catch (err) { toast(friendly(err)); b.disabled = false; } return; }
+  if (b.dataset.paid === '0') return setOrder(b.dataset.id, { paid: false }, b);
 });
 
+/* ---------- loyalty ---------- */
+// Paying adds this order's pizzas to the customer's stamps (once per order) and keeps a visit history.
+async function markPaid(list) {
+  const ev = every();
+  await runTransaction(db, async tx => {
+    const phones = [...new Set(list.filter(o => o.phone && o.stamps == null).map(o => o.phone))], cur = {};
+    for (const p of phones) { const d = (await tx.get(doc(db, 'customers', p))).data() || {}; cur[p] = { name: d.name || '', stamps: d.stamps || 0, orders: d.orders || 0, pizzas: d.pizzas || 0, spent: d.spent || 0 }; }
+    for (const o of list) {
+      const patch = { paid: true, updatedAt: serverTimestamp(), by: me.name };
+      if (o.phone && o.stamps == null) {
+        const c = cur[o.phone], n = pizzas(o);
+        if (ev) c.stamps += n; c.pizzas += n; c.orders += 1; c.spent += owed(o); if (o.name) c.name = o.name;
+        patch.stamps = c.stamps;
+      }
+      tx.update(doc(db, 'orders', o.id), patch);
+    }
+    phones.forEach(p => tx.set(doc(db, 'customers', p), { ...cur[p], lastAt: serverTimestamp() }));
+  });
+}
+// A free pizza takes the cheapest pizza on the order off the bill and uses up one card of stamps.
+async function redeem(o) {
+  const ev = every(), val = Math.min(...o.items.filter(i => i.k === 'pizza' || i.k === 'custom').map(i => i.p));
+  await runTransaction(db, async tx => {
+    const r = doc(db, 'customers', o.phone), d = (await tx.get(r)).data() || {};
+    if ((d.stamps || 0) < ev) throw new Error('Not enough stamps yet.');
+    tx.set(r, { ...d, stamps: d.stamps - ev });
+    tx.update(doc(db, 'orders', o.id), { discount: Math.min(val, o.total), updatedAt: serverTimestamp(), by: me.name });
+    // the customer's phone shows the count saved on their newest paid order, so keep that one current
+    const shown = orders.filter(x => x.phone === o.phone && x.stamps != null).sort((a, b) => ms(b) - ms(a))[0];
+    if (shown) tx.update(doc(db, 'orders', shown.id), { stamps: d.stamps - ev, updatedAt: serverTimestamp(), by: me.name });
+  });
+}
+
 /* ---------- bills ---------- */
+const groupKey = o => isTake(o) ? 'tk:' + o.id : 't:' + o.table;
 function renderBills() {
   const live = orders.filter(o => o.status !== 'cancelled');
-  const open = {}; live.filter(o => !o.paid).forEach(o => (open[o.table] ||= []).push(o));
-  $('#bills').innerHTML = Object.keys(open).sort((a, b) => a - b).map(tn => {
-    const l = open[tn], sum = l.reduce((a, o) => a + o.total, 0), waiting = l.some(o => o.status !== 'served');
-    return `<div class="card bill"><h3><span>Table ${esc(tn)}</span><span>${rs(sum)}</span></h3>
-      <div class="rows">${l.map(o => `<div><span>#${esc(o.no)} · ${clock(o)}</span><span>${o.status === 'served' ? '' : `<span class="tag">${o.status}</span> `}${rs(o.total)}</span></div>`).join('')}</div>
+  const open = {}; live.filter(o => !o.paid).forEach(o => (open[groupKey(o)] ||= []).push(o));
+  const keys = Object.keys(open).sort((a, b) => a.startsWith('tk') - b.startsWith('tk') || parseInt(a.slice(2)) - parseInt(b.slice(2)));
+  $('#bills').innerHTML = keys.map(k => {
+    const l = open[k], sum = l.reduce((a, o) => a + owed(o), 0), waiting = l.some(o => o.status !== 'served'), o0 = l[0];
+    const title = isTake(o0) ? `Takeaway ${esc(o0.no)} · ${esc(o0.name)}` : `Table ${esc(o0.table)}`;
+    return `<div class="card bill"><h3><span>${title}</span><span>${rs(sum)}</span></h3>
+      <div class="rows">${l.map(o => `<div><span>#${esc(o.no)} · ${clock(ms(o))}</span><span>${o.status === 'served' ? '' : `<span class="tag">${o.status}</span> `}${rs(owed(o))}</span></div>`).join('')}</div>
       <p class="mut" style="margin:4px 0 10px;font-size:.85rem">${waiting ? 'Some food is still on its way.' : 'Everything served.'}</p>
-      <button class="btn alt" data-paytbl="${esc(tn)}" style="width:100%">Mark table ${esc(tn)} paid · ${rs(sum)}</button></div>`;
+      <div class="row"><button class="btn ghost" data-printbill="${esc(k)}">Print bill</button>
+      <button class="btn alt" data-paygrp="${esc(k)}" style="flex:1">Mark paid · ${rs(sum)}</button></div></div>`;
   }).join('') || '<p class="empty">No open bills</p>';
-  $('#paidRows').innerHTML = live.filter(o => o.paid).reverse().map(o => `<tr><td>${clock(o)}</td><td>T${esc(o.table)}</td><td>#${esc(o.no)}</td><td>${rs(o.total)}</td><td>${esc(o.status)}</td>
-    <td><button class="btn sm ghost" data-id="${esc(o.id)}" data-paid="0">Undo</button></td></tr>`).join('') || '<tr><td colspan="6" class="mut">Nothing paid yet today</td></tr>';
+  $('#paidRows').innerHTML = live.filter(o => o.paid).reverse().map(o => `<tr><td>${clock(ms(o))}</td><td>${o.billNo ? 'No. ' + o.billNo : ''}</td><td>${esc(who(o))}</td><td>#${esc(o.no)}</td><td>${rs(owed(o))}</td><td>${esc(o.status)}</td>
+    <td><button class="btn sm ghost" data-reprint="${esc(o.id)}">Print bill</button> <button class="btn sm ghost" data-id="${esc(o.id)}" data-paid="0">Undo</button></td></tr>`).join('') || '<tr><td colspan="7" class="mut">Nothing paid yet today</td></tr>';
 }
-$('#bills').addEventListener('click', async e => {
-  const b = e.target.closest('[data-paytbl]'); if (!b) return; b.disabled = true;
-  const batch = writeBatch(db);
-  orders.filter(o => String(o.table) === b.dataset.paytbl && !o.paid && o.status !== 'cancelled')
-    .forEach(o => batch.update(doc(db, 'orders', o.id), { paid: true, updatedAt: serverTimestamp(), by: me.name }));
-  try { await batch.commit(); toast('Table ' + b.dataset.paytbl + ' paid'); } catch (err) { toast(friendly(err)); b.disabled = false; }
+const unpaidGroup = k => orders.filter(o => groupKey(o) === k && !o.paid && o.status !== 'cancelled');
+$('#vBills').addEventListener('click', async e => {
+  const pay = e.target.closest('[data-paygrp]'), pr = e.target.closest('[data-printbill]'), re = e.target.closest('[data-reprint]');
+  try {
+    if (pay) { pay.disabled = true; await markPaid(unpaidGroup(pay.dataset.paygrp)); toast('Marked paid'); }
+    if (pr) await printBill(unpaidGroup(pr.dataset.printbill));
+    if (re) { const o = byId(re.dataset.reprint); await printBill(o.billNo ? orders.filter(x => x.billNo === o.billNo) : [o]); }
+  } catch (err) { toast(friendly(err)); if (pay) pay.disabled = false; }
 });
+
+/* ---------- printing: bills (with GST split and UPI code) and kitchen tickets ---------- */
+function print(html) {
+  $('#printArea').innerHTML = html; document.body.dataset.print = '1';
+  setTimeout(() => { window.print(); }, 50);
+}
+addEventListener('afterprint', () => { delete document.body.dataset.print; });
+// Bill numbers run 1, 2, 3… across all days, as an invoice series should.
+async function billNumber(list) {
+  if (list.length && list.every(o => o.billNo && o.billNo === list[0].billNo)) return list[0].billNo;
+  return runTransaction(db, async tx => {
+    const r = doc(db, 'counters', 'bill'), n = ((await tx.get(r)).data()?.n || 0) + 1;
+    tx.set(r, { n }); list.forEach(o => tx.update(doc(db, 'orders', o.id), { billNo: n, updatedAt: serverTimestamp(), by: me.name }));
+    return n;
+  });
+}
+const qrSvg = (text, cell) => { if (!window.qrcode) return ''; const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: cell, margin: 0, scalable: true }); };
+async function printBill(list) {
+  if (!list.length) return toast('Nothing to bill');
+  const n = await billNumber(list), o0 = list[0], S = shop || {};
+  const lines = {}; list.forEach(o => o.items.forEach(i => { const k = line(i) + '|' + i.p + '|' + (i.d || ''); lines[k] ||= { ...i, q: 0 }; lines[k].q += i.q; }));
+  const sub = list.reduce((a, o) => a + o.total, 0), disc = list.reduce((a, o) => a + (o.discount || 0), 0), tot = sub - disc;
+  const g = +S.gst || 0, taxable = g ? tot / (1 + g / 100) : tot, half = (tot - taxable) / 2, f2 = v => v.toFixed(2);
+  const paid = list.every(o => o.paid);
+  const upi = S.upi && !paid ? `upi://pay?pa=${encodeURIComponent(S.upi)}&pn=${encodeURIComponent(S.payee || shopName())}&am=${tot}&cu=INR&tn=${encodeURIComponent('Bill ' + n)}` : '';
+  print(`<h1>${esc(shopName())}</h1>
+    ${S.gstin ? `<div class="c">GSTIN ${esc(S.gstin)}</div><div class="c"><b>TAX INVOICE</b></div>` : '<div class="c"><b>BILL</b></div>'}
+    <hr><div class="l"><span>Bill No. ${n}</span><span>${new Date().toLocaleDateString('en-IN')} ${clock(Date.now())}</span></div>
+    <div>${esc(isTake(o0) ? `Takeaway · ${o0.name} · ${o0.phone}` : `Table ${o0.table}`)}</div><hr>
+    ${Object.values(lines).map(i => `<div class="l"><span>${esc(line(i))}</span><span>${f2(i.q * i.p)}</span></div>${i.d ? `<div style="font-size:10px">  ${esc(i.d)}</div>` : ''}`).join('')}
+    <hr><div class="l"><span>Subtotal</span><span>${f2(sub)}</span></div>
+    ${disc ? `<div class="l"><span>Loyalty: free pizza</span><span>-${f2(disc)}</span></div>` : ''}
+    ${g ? `<div class="l"><span>Taxable value</span><span>${f2(taxable)}</span></div><div class="l"><span>CGST ${g / 2}%</span><span>${f2(half)}</span></div><div class="l"><span>SGST ${g / 2}%</span><span>${f2(half)}</span></div>` : ''}
+    <hr><div class="l big"><span>TOTAL</span><span>₹${f2(tot)}</span></div>
+    ${g ? '<div style="font-size:10px">Prices include GST.</div>' : ''}
+    <div class="c">${paid ? 'PAID · thank you!' : ''}</div>
+    ${upi ? `<div class="c">Scan to pay by UPI</div>${qrSvg(upi, 3)}<div class="c">${esc(S.upi)}</div>` : ''}
+    <hr><div class="c">Thank you, visit again!</div>`);
+}
+function printKot(o) {
+  print(`<h1>KITCHEN</h1><div class="c big">${esc(isTake(o) ? 'TAKEAWAY ' + o.no : 'TABLE ' + o.table)}</div>
+    <div class="l"><span>#${esc(o.no)}</span><span>${clock(ms(o))}</span></div><hr>
+    <ul class="kot" style="padding-left:0;list-style:none">${o.items.map(i => `<li>${esc(line(i))}${i.d ? `<div style="font-size:12px;font-weight:400">${esc(i.d)}</div>` : ''}</li>`).join('')}</ul>
+    ${o.note ? `<hr><b>NOTE: ${esc(o.note)}</b>` : ''}`);
+}
 
 /* ---------- owner: menu ---------- */
 let menuDirty = false;
 function renderMenuTab() {
   if (me?.role !== 'admin') return;
   const so = new Set(cfgMenu.soldOut);
-  $('#pzRows').innerHTML = MENU.pizzas.map(p => `<tr><td><b>${esc(p.name_en)}</b> <span class="mut">${p.veg ? 'Veg' : 'Non-veg'}</span></td>
-    <td><input type="number" min="1" max="5000" data-price="${p.id}" value="${cfgMenu.prices[p.id] || p.price}" aria-label="${esc(p.name_en)} price"></td>
-    <td><input type="checkbox" data-so="${p.id}" ${so.has(p.id) ? 'checked' : ''} aria-label="${esc(p.name_en)} sold out"></td></tr>`).join('');
-  $('#tpRows').innerHTML = MENU.toppings.map(a => `<label style="display:flex;align-items:center;gap:8px;font-weight:600"><input type="checkbox" data-so="${a[0]}" ${so.has(a[0]) ? 'checked' : ''}>${esc(a[1])} sold out</label>`).join('');
+  const row = (id, name, sub, base) => `<tr><td><b>${esc(name)}</b> <span class="mut">${sub}</span></td>
+    <td><input type="number" min="1" max="5000" data-price="${id}" data-base="${base}" value="${cfgMenu.prices[id] || base}" aria-label="${esc(name)} price"></td>
+    <td><input type="checkbox" data-so="${id}" ${so.has(id) ? 'checked' : ''} aria-label="${esc(name)} sold out"></td></tr>`;
+  $('#pzRows').innerHTML = M.pizzas.map(p => row(p.id, p.name_en, p.veg ? 'Pizza · veg' : 'Pizza · non-veg', p.price)).join('')
+    + M.extras.map(x => row(x.id, x.en, x.cat[0].toUpperCase() + x.cat.slice(1), x.price)).join('');
+  $('#tpRows').innerHTML = M.toppings.map(a => `<label class="chk" style="font-weight:600"><input type="checkbox" data-so="${a[0]}" ${so.has(a[0]) ? 'checked' : ''}>${esc(a[1])} sold out</label>`).join('');
   menuDirty = false; $('#saveMenu').disabled = true;
 }
 $('#vMenu').addEventListener('input', () => { menuDirty = true; $('#saveMenu').disabled = false; });
 $('#saveMenu').onclick = async () => {
   const prices = {}, soldOut = [...document.querySelectorAll('#vMenu [data-so]:checked')].map(i => i.dataset.so);
   for (const i of document.querySelectorAll('[data-price]')) {
-    const v = Math.round(+i.value), base = MENU.pizzas.find(p => p.id === i.dataset.price).price;
+    const v = Math.round(+i.value);
     if (!(v >= 1 && v <= 5000)) return toast('Check the price for ' + i.dataset.price);
-    if (v !== base) prices[i.dataset.price] = v;
+    if (v !== +i.dataset.base) prices[i.dataset.price] = v;
   }
   try { await setDoc(doc(db, 'config', 'menu'), { soldOut, prices }); menuDirty = false; toast('Menu saved. Phones update straight away.'); renderMenuTab(); } catch (e) { toast(friendly(e)); }
 };
 
 /* ---------- owner: tables and QR codes ---------- */
 function renderTables() {
-  const n = shop?.tables || 0; if (document.activeElement !== $('#tblN')) $('#tblN').value = n;
-  if ($('#qrs').dataset.n == n) return; $('#qrs').dataset.n = n;
-  $('#qrs').innerHTML = Array.from({ length: n }, (_, i) => {
-    const url = MENU_URL + '?t=' + (i + 1); let svg = '';
-    if (window.qrcode) { const q = qrcode(0, 'M'); q.addData(url); q.make(); svg = q.createSvgTag({ cellSize: 5, margin: 0, scalable: true }); }
-    return `<div class="qr"><b>Table ${i + 1}</b>${svg}<small>Scan to see the menu and order</small><small>${esc(MENU.shop.name_en)}</small></div>`;
-  }).join('');
+  const n = shop?.tables || 0, tk = !!shop?.takeaway; if (document.activeElement !== $('#tblN')) $('#tblN').value = n;
+  const key = n + '|' + tk; if ($('#qrs').dataset.k === key) return; $('#qrs').dataset.k = key;
+  const card = (title, url, sub) => `<div class="qr"><b>${title}</b>${qrSvg(url, 5)}<small>${sub}</small><small>${esc(shopName())}</small></div>`;
+  $('#qrs').innerHTML = (tk ? card('Takeaway', MENU_URL + '?takeaway=1', 'Scan to order for pickup') : '')
+    + Array.from({ length: n }, (_, i) => card('Table ' + (i + 1), MENU_URL + '?t=' + (i + 1), 'Scan to see the menu and order')).join('');
 }
 $('#saveTbl').onclick = async () => {
   const n = Math.round(+$('#tblN').value); if (!(n >= 1 && n <= 200)) return toast('Use a number from 1 to 200');
   try { await updateDoc(doc(db, 'config', 'shop'), { tables: n }); toast('Saved ' + n + ' tables'); } catch (e) { toast(friendly(e)); }
 };
-$('#printBtn').onclick = () => window.print();
+$('#printBtn').onclick = () => { delete document.body.dataset.print; window.print(); };
 
 /* ---------- owner: staff ---------- */
 function renderStaff() {
@@ -468,18 +679,45 @@ $('#addF').onsubmit = async e => {
   finally { signOut(a2).catch(() => {}); btn.disabled = false; }
 };
 
-/* ---------- owner: today's sales ---------- */
+/* ---------- owner: today's sales, feedback and loyalty customers ---------- */
 function renderSales() {
-  const live = orders.filter(o => o.status !== 'cancelled'), sum = l => l.reduce((a, o) => a + o.total, 0);
-  const paid = live.filter(o => o.paid);
-  $('#kpis').innerHTML = [[rs(sum(live)), 'Sales today'], [live.length, 'Orders'], [rs(live.length ? Math.round(sum(live) / live.length) : 0), 'Average order'],
-    [rs(sum(paid)), 'Collected'], [rs(sum(live) - sum(paid)), 'Still to collect'], [orders.length - live.length, 'Cancelled']]
+  const live = orders.filter(o => o.status !== 'cancelled'), sum = l => l.reduce((a, o) => a + owed(o), 0);
+  const paid = live.filter(o => o.paid), rated = orders.filter(o => o.rating);
+  const avg = rated.length ? (rated.reduce((a, o) => a + o.rating, 0) / rated.length).toFixed(1) : '–';
+  $('#kpis').innerHTML = [[rs(sum(live)), 'Sales today'], [live.length, 'Orders'], [live.filter(isTake).length, 'Takeaway orders'], [rs(live.length ? Math.round(sum(live) / live.length) : 0), 'Average order'],
+    [rs(sum(paid)), 'Collected'], [rs(sum(live) - sum(paid)), 'Still to collect'], [`★ ${avg}`, `Rating (${rated.length})`], [orders.length - live.length, 'Cancelled']]
     .map(([v, l]) => `<div class="card kpi"><b>${v}</b><span>${l}</span></div>`).join('');
-  const items = {}; live.forEach(o => (o.items || []).forEach(i => { const k = i.n + ' (' + i.s + ')'; items[k] ||= [0, 0]; items[k][0] += i.q; items[k][1] += i.q * i.p; }));
+  const items = {}; live.forEach(o => (o.items || []).forEach(i => { const k = i.n + (i.s ? ' (' + i.s + ')' : ''); items[k] ||= [0, 0]; items[k][0] += i.q; items[k][1] += i.q * i.p; }));
   $('#topRows').innerHTML = Object.entries(items).sort((a, b) => b[1][0] - a[1][0]).slice(0, 12).map(([k, [q, v]]) => `<tr><td>${esc(k)}</td><td>${q}</td><td>${rs(v)}</td></tr>`).join('') || '<tr><td colspan="3" class="mut">No orders yet</td></tr>';
-  const bt = {}; live.forEach(o => { bt[o.table] ||= [0, 0]; bt[o.table][0]++; bt[o.table][1] += o.total; });
-  $('#byTbl').innerHTML = Object.entries(bt).sort((a, b) => a[0] - b[0]).map(([k, [n, v]]) => `<tr><td>Table ${esc(k)}</td><td>${n}</td><td>${rs(v)}</td></tr>`).join('') || '<tr><td colspan="3" class="mut">No orders yet</td></tr>';
+  const bt = {}; live.forEach(o => { const k = isTake(o) ? 'Takeaway' : 'Table ' + o.table; bt[k] ||= [0, 0]; bt[k][0]++; bt[k][1] += owed(o); });
+  $('#byTbl').innerHTML = Object.entries(bt).sort((a, b) => a[0].localeCompare(b[0], 'en', { numeric: true })).map(([k, [n, v]]) => `<tr><td>${esc(k)}</td><td>${n}</td><td>${rs(v)}</td></tr>`).join('') || '<tr><td colspan="3" class="mut">No orders yet</td></tr>';
+  $('#fbList').innerHTML = rated.slice().reverse().map(o => `<div class="fb"><b>${'★'.repeat(o.rating)}${'☆'.repeat(5 - o.rating)}</b> <span class="mut">${esc(who(o))} · #${esc(o.no)}</span>${o.comment ? `<div>${esc(o.comment)}</div>` : ''}</div>`).join('') || '<p class="mut">No ratings yet today</p>';
+  $('#custRows').innerHTML = custList().slice(0, 50).map(([p, c]) => `<tr><td>${esc(c.name)}</td><td>${esc(p)}</td><td>${c.orders || 0}</td><td>${c.pizzas || 0}</td><td>${rs(c.spent)}</td><td>${c.stamps || 0}</td></tr>`).join('') || '<tr><td colspan="6" class="mut">Customers appear here once an order with a mobile number is paid.</td></tr>';
 }
+const custList = () => Object.entries(CUST).sort((a, b) => (b[1].spent || 0) - (a[1].spent || 0));
+$('#csvBtn').onclick = () => {
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const csv = 'name,mobile,orders,pizzas,spent,stamps\n' + custList().map(([p, c]) => [c.name, p, c.orders, c.pizzas, c.spent, c.stamps].map(q).join(',')).join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'customers.csv'; a.click(); URL.revokeObjectURL(a.href);
+};
+
+/* ---------- owner: settings ---------- */
+let setDirty = false;
+function renderSettings() {
+  if (me?.role !== 'admin' || !shop) return; const f = $('#setF');
+  f.name.value = shopName(); f.takeaway.checked = !!shop.takeaway; f.upi.value = shop.upi || ''; f.payee.value = shop.payee || '';
+  f.gstin.value = shop.gstin || ''; f.gst.value = shop.gst ?? 5; f.review.value = shop.review || ''; f.loyaltyEvery.value = shop.loyaltyEvery ?? 6;
+}
+$('#setF').addEventListener('input', () => { setDirty = true; });
+$('#setF').onsubmit = async e => {
+  e.preventDefault(); const f = e.target; $('#setErr').textContent = '';
+  const upi = f.upi.value.trim();
+  if (upi && !/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(upi)) return $('#setErr').textContent = 'That UPI ID does not look right. It should look like name@bank.';
+  const patch = { name: f.name.value.trim() || M.shop.name_en, takeaway: f.takeaway.checked, upi, payee: f.payee.value.trim(),
+    gstin: f.gstin.value.trim().toUpperCase(), gst: Math.min(28, Math.max(0, +f.gst.value || 0)), review: f.review.value.trim(),
+    loyaltyEvery: Math.min(50, Math.max(0, Math.round(+f.loyaltyEvery.value || 0))) };
+  try { await updateDoc(doc(db, 'config', 'shop'), patch); setDirty = false; toast('Settings saved'); } catch (err) { $('#setErr').textContent = friendly(err); }
+};
 </script>
 </body>
 </html>
