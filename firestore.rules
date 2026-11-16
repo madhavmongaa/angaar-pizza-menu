@@ -1,0 +1,81 @@
+rules_version = '2';
+
+// Angaar Pizza orders.
+//   config/shop  {tables, open, name}        public read, admin write
+//   config/menu  {soldOut: [ids], prices: {pizzaId: rupees}}   public read, admin write
+//   staff/{uid}  {name, email, role: admin|counter, active, createdAt}
+//   orders/{id}  {table, items, total, note, status, paid, uid, createdAt, updatedAt, by}
+// Customers sign in anonymously; staff sign in with email and password.
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function withPassword() { return signedIn() && request.auth.token.firebase.sign_in_provider == 'password'; }
+    function staffPath(uid) { return /databases/$(db)/documents/staff/$(uid); }
+    function shopPath() { return /databases/$(db)/documents/config/shop; }
+    function isStaff() {
+      return withPassword() && exists(staffPath(request.auth.uid)) && get(staffPath(request.auth.uid)).data.active == true;
+    }
+    function isAdmin() { return isStaff() && get(staffPath(request.auth.uid)).data.role == 'admin'; }
+    function validTables(d) { return d.tables is int && d.tables >= 1 && d.tables <= 200 && d.open is bool; }
+
+    match /config/shop {
+      allow read: if true;
+      // First set-up: created in the same batch as the owner's own staff record.
+      allow create: if withPassword() && validTables(request.resource.data)
+        && getAfter(staffPath(request.auth.uid)).data.role == 'admin';
+      allow update: if isAdmin() && validTables(request.resource.data);
+    }
+
+    match /config/menu {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.data.soldOut is list && request.resource.data.prices is map;
+    }
+
+    match /staff/{uid} {
+      allow read: if isStaff() || (signedIn() && request.auth.uid == uid);
+      allow create: if request.resource.data.keys().hasOnly(['name', 'email', 'role', 'active', 'createdAt'])
+        && request.resource.data.role in ['admin', 'counter'] && request.resource.data.active is bool
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60
+        && (isAdmin()
+            // the very first owner, only while the shop has not been set up
+            || (withPassword() && request.auth.uid == uid && request.resource.data.role == 'admin'
+                && !exists(shopPath()) && existsAfter(shopPath())));
+      // Admins manage everyone except themselves, so the last admin cannot lock the shop out.
+      allow update: if isAdmin() && request.auth.uid != uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'role', 'active'])
+        && request.resource.data.role in ['admin', 'counter'] && request.resource.data.active is bool;
+      allow delete: if false;
+    }
+
+    match /orders/{id} {
+      allow read: if isStaff() || (signedIn() && resource.data.uid == request.auth.uid);
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['table', 'items', 'total', 'note', 'status', 'paid', 'uid', 'createdAt', 'updatedAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'new' && request.resource.data.paid == false
+        && request.resource.data.table is int && request.resource.data.table >= 1
+        && request.resource.data.table <= get(shopPath()).data.tables
+        && get(shopPath()).data.open == true
+        && request.resource.data.items is list
+        && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 40
+        && request.resource.data.total is int && request.resource.data.total > 0 && request.resource.data.total < 200000
+        && request.resource.data.note is string && request.resource.data.note.size() <= 200
+        && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
+
+      // Staff move an order along and mark it paid.
+      allow update: if isStaff()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'paid', 'updatedAt', 'by'])
+        && request.resource.data.status in ['new', 'accepted', 'ready', 'served', 'cancelled']
+        && request.resource.data.paid is bool && request.resource.data.updatedAt == request.time;
+
+      // A customer can cancel their own order until the counter accepts it.
+      allow update: if signedIn() && resource.data.uid == request.auth.uid && resource.data.status == 'new'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.status == 'cancelled' && request.resource.data.updatedAt == request.time;
+
+      allow delete: if false;
+    }
+  }
+}

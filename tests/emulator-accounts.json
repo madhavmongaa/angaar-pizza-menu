@@ -1,0 +1,5 @@
+{
+  "_note": "Made-up logins for the local emulators only (npx firebase-tools emulators:start). They do not exist in the live project.",
+  "owner": {"name": "Test Owner", "email": "owner@angaar.test", "password": "owner-test-123"},
+  "counter": {"name": "Test Counter", "email": "counter@angaar.test", "password": "counter-test-123"}
+}

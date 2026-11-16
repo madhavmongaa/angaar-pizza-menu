@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Angaar Counter</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef9f3;--card:#fff;--ink:#16302a;--mut:#56706a;--mint:#c4ecd9;--mint2:#1f8a66;--red:#d8412f;--amber:#b86e00;--line:#d3e9de;--onmint:#fff;--shadow:0 4px 14px rgba(20,60,45,.09);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a17;--card:#17251f;--ink:#e9f5ef;--mut:#9db5ab;--mint:#1f4336;--mint2:#63d1a6;--red:#ff6a55;--amber:#f0a73a;--line:#263b33;--onmint:#0f1a17;--shadow:0 4px 14px rgba(0,0,0,.4);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1a17;--card:#17251f;--ink:#e9f5ef;--mut:#9db5ab;--mint:#1f4336;--mint2:#63d1a6;--red:#ff6a55;--amber:#f0a73a;--line:#263b33;--onmint:#0f1a17;--shadow:0 4px 14px rgba(0,0,0,.4);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Nunito,system-ui,sans-serif}
+h1,h2,h3{font-family:"Baloo 2",sans-serif;margin:0;line-height:1.15;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;min-height:42px;width:100%}
+:focus-visible{outline:3px solid var(--mint2);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1280px;margin:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-block:10px}
+.top h1{font-size:1.3rem;color:var(--red);flex:1;min-width:0}
+.who{font-size:.85rem;color:var(--mut)}
+.nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px}
+.nav button{white-space:nowrap;min-height:40px;padding:6px 14px;border-radius:999px;background:var(--card);border:1.5px solid var(--line);font-weight:700}
+.nav button[aria-selected=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.badge{display:inline-block;min-width:20px;padding:0 6px;margin-left:4px;border-radius:10px;background:var(--red);color:#fff;font-size:.75rem;text-align:center}
+main{padding-block:16px 40px}
+.btn{min-height:40px;padding:6px 16px;border-radius:10px;background:var(--red);color:#fff;font-weight:800}
+.btn.alt{background:var(--mint2);color:var(--onmint)}
+.btn.ghost{background:var(--mint);color:var(--ink)}
+.btn.sm{min-height:34px;padding:4px 12px;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.sw{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:4px 12px;border-radius:999px;font-weight:800;border:1.5px solid var(--line);background:var(--card)}
+.sw i{width:10px;height:10px;border-radius:50%;background:var(--red)}
+.sw.on i{background:var(--mint2)}
+.card{background:var(--card);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.narrow{max-width:420px;margin:40px auto}
+.narrow form{display:grid;gap:12px}
+label{display:grid;gap:4px;font-weight:700;font-size:.85rem}
+.err{color:var(--red);font-weight:700;min-height:1.2em;margin:0}
+.mut{color:var(--mut)}
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+@media(max-width:900px){.cols{grid-template-columns:minmax(0,1fr)}}
+.col h2{font-size:1.1rem;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.col h2 .n{font-family:Nunito,sans-serif;font-size:.85rem;color:var(--mut)}
+.dot{width:10px;height:10px;border-radius:50%}
+.o{background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:var(--shadow);border-left:5px solid var(--line)}
+.o.new{border-left-color:var(--red)}.o.accepted{border-left-color:var(--amber)}.o.ready{border-left-color:var(--mint2)}
+.o.fresh{animation:pop 1.2s ease 2}
+@keyframes pop{50%{box-shadow:0 0 0 4px var(--red)}}
+.oh{display:flex;align-items:baseline;gap:8px}
+.tno{font:800 1.6rem "Baloo 2",sans-serif}
+.oh .meta{flex:1;font-size:.8rem;color:var(--mut)}
+.o ul{margin:6px 0;padding-left:18px}
+.o li small{display:block;color:var(--mut)}
+.note{background:var(--mint);border-radius:8px;padding:4px 8px;font-size:.85rem;margin:4px 0}
+.ob{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.ob .tot{flex:1;font-weight:800}
+.tag{font-size:.75rem;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--line)}
+.tag.paid{background:var(--mint2);color:var(--onmint)}
+.empty{color:var(--mut);text-align:center;padding:20px;border:1.5px dashed var(--line);border-radius:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.bill h3{display:flex;justify-content:space-between;font-size:1.2rem}
+.bill .rows{font-size:.9rem;margin:8px 0}
+.bill .rows div{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.scroll{overflow-x:auto}
+td input[type=number]{width:96px}
+input[type=checkbox]{width:22px;height:22px;min-height:0;accent-color:var(--red)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi b{display:block;font:800 1.8rem "Baloo 2",sans-serif}
+.kpi span{color:var(--mut);font-size:.85rem}
+.row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.row>label{flex:1;min-width:160px}
+.sec{margin-bottom:18px}
+.sec>h2{font-size:1.15rem;margin-bottom:10px}
+.qrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.qr{background:#fff;color:#16302a;border-radius:14px;padding:14px;text-align:center;border:1px solid #d3e9de}
+.qr svg{width:100%;height:auto}
+.qr b{display:block;font:800 1.4rem "Baloo 2",sans-serif;color:#d8412f}
+.qr small{display:block;font-size:.75rem}
+.toast{position:fixed;left:50%;bottom:24px;translate:-50% 20px;z-index:40;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:800;opacity:0;transition:.3s;pointer-events:none}
+.toast.show{opacity:1;translate:-50% 0}
+@media print{
+  header,.noprint,.toast{display:none!important}
+  body{background:#fff}
+  main{padding:0}
+  .qrs{grid-template-columns:repeat(3,1fr)}
+  .qr{break-inside:avoid;border:1px solid #999}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header id="hdr" hidden>
+  <div class="wrap top">
+    <h1 id="shopName">Angaar Counter</h1>
+    <span class="who" id="who"></span>
+    <button class="sw" id="openSw" title="Taking orders?"><i></i><span></span></button>
+    <button class="btn ghost sm" id="soundBtn">Sound off</button>
+    <button class="btn ghost sm" id="outBtn">Sign out</button>
+  </div>
+  <nav class="wrap nav" id="nav" role="tablist"></nav>
+</header>
+
+<main class="wrap">
+  <p id="loading" class="mut" style="text-align:center;margin-top:60px">Loading…</p>
+
+  <!-- sign in -->
+  <section id="vLogin" class="card narrow" hidden>
+    <h2>Staff sign in</h2>
+    <p class="mut">Counter and owner accounts. Customers order from the table QR code.</p>
+    <form id="loginF">
+      <label>Email<input type="email" name="email" autocomplete="username" required></label>
+      <label>Password<input type="password" name="pw" autocomplete="current-password" required></label>
+      <p class="err" id="loginErr" role="alert"></p>
+      <button class="btn">Sign in</button>
+      <button type="button" class="btn ghost" id="forgotBtn">Forgot password</button>
+    </form>
+  </section>
+
+  <!-- first-time set-up -->
+  <section id="vSetup" class="card narrow" hidden>
+    <h2>Set up your shop</h2>
+    <p class="mut">This runs once. The account you make here becomes the owner and can add counter staff later.</p>
+    <form id="setupF">
+      <label>Your name<input name="name" required maxlength="60"></label>
+      <label>Owner email<input type="email" name="email" autocomplete="username" required></label>
+      <label>Password (at least 6 characters)<input type="password" name="pw" minlength="6" autocomplete="new-password" required></label>
+      <label>Number of tables<input type="number" name="tables" min="1" max="200" value="12" required></label>
+      <p class="err" id="setupErr" role="alert"></p>
+      <button class="btn">Create owner account</button>
+    </form>
+  </section>
+
+  <!-- signed in but not allowed -->
+  <section id="vNo" class="card narrow" hidden>
+    <h2>No staff access</h2>
+    <p id="noMsg" class="mut"></p>
+    <button class="btn ghost" data-out>Sign out</button>
+  </section>
+
+  <!-- live orders -->
+  <section id="vOrders" hidden>
+    <div class="cols">
+      <div class="col"><h2><i class="dot" style="background:var(--red)"></i>New <span class="n" id="nNew"></span></h2><div id="cNew"></div></div>
+      <div class="col"><h2><i class="dot" style="background:var(--amber)"></i>Being made <span class="n" id="nAcc"></span></h2><div id="cAcc"></div></div>
+      <div class="col"><h2><i class="dot" style="background:var(--mint2)"></i>Ready to serve <span class="n" id="nRdy"></span></h2><div id="cRdy"></div></div>
+    </div>
+  </section>
+
+  <!-- bills by table -->
+  <section id="vBills" hidden>
+    <div class="sec"><h2>Open bills</h2><div class="grid" id="bills"></div></div>
+    <div class="sec"><h2>Paid today</h2><div class="scroll"><table><thead><tr><th>Time</th><th>Table</th><th>Order</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody id="paidRows"></tbody></table></div></div>
+  </section>
+
+  <!-- owner: menu -->
+  <section id="vMenu" hidden>
+    <div class="sec card">
+      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><h2>Pizzas</h2><button class="btn alt" id="saveMenu">Save menu</button></div>
+      <p class="mut" style="margin-top:0">Price is for the Regular size; Medium and Large scale from it. Ticking "Sold out" greys the item out on every phone straight away.</p>
+      <div class="scroll"><table><thead><tr><th>Pizza</th><th>Regular price (₹)</th><th>Sold out</th></tr></thead><tbody id="pzRows"></tbody></table></div>
+    </div>
+    <div class="sec card">
+      <h2 style="margin-bottom:8px">Toppings for "Make your own"</h2>
+      <div class="grid" id="tpRows" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px"></div>
+    </div>
+  </section>
+
+  <!-- owner: tables and QR -->
+  <section id="vTables" hidden>
+    <div class="sec card noprint">
+      <div class="row">
+        <label>Number of tables<input type="number" id="tblN" min="1" max="200"></label>
+        <button class="btn alt" id="saveTbl">Save</button>
+        <button class="btn ghost" id="printBtn">Print QR codes</button>
+      </div>
+      <p class="mut">Stick each code on its table. Scanning it opens the menu with that table number already filled in.</p>
+    </div>
+    <div class="qrs" id="qrs"></div>
+  </section>
+
+  <!-- owner: staff -->
+  <section id="vStaff" hidden>
+    <div class="sec card">
+      <h2 style="margin-bottom:10px">Add a staff login</h2>
+      <form id="addF" class="row">
+        <label>Name<input name="name" required maxlength="60"></label>
+        <label>Email<input type="email" name="email" required autocomplete="off"></label>
+        <label>Starting password<input type="password" name="pw" minlength="6" required autocomplete="new-password"></label>
+        <label style="flex:0 0 140px">Role<select name="role"><option value="counter">Counter</option><option value="admin">Owner / admin</option></select></label>
+        <button class="btn alt">Add</button>
+      </form>
+      <p class="err" id="addErr" role="alert"></p>
+    </div>
+    <div class="sec card">
+      <h2 style="margin-bottom:10px">Team</h2>
+      <div class="scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Access</th><th></th></tr></thead><tbody id="staffRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- owner: sales -->
+  <section id="vSales" hidden>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid">
+      <div class="card"><h2 style="margin-bottom:8px">Best sellers today</h2><div class="scroll"><table><thead><tr><th>Item</th><th>Qty</th><th>₹</th></tr></thead><tbody id="topRows"></tbody></table></div></div>
+      <div class="card"><h2 style="margin-bottom:8px">By table</h2><div class="scroll"><table><thead><tr><th>Table</th><th>Orders</th><th>₹</th></tr></thead><tbody id="byTbl"></tbody></table></div></div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script type="module">
+import { auth, db, secondaryAuth, EMU } from './fb.js';
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { doc, getDoc, setDoc, updateDoc, writeBatch, collection, query, where, orderBy, onSnapshot, serverTimestamp, Timestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const rs = n => '₹' + Number(n || 0).toLocaleString('en-IN');
+let tt; const toast = m => { const e = $('#toast'); e.textContent = m; e.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => e.classList.remove('show'), 2200); };
+const friendly = e => ({
+  'auth/invalid-credential': 'Wrong email or password.', 'auth/wrong-password': 'Wrong email or password.', 'auth/user-not-found': 'Wrong email or password.',
+  'auth/email-already-in-use': 'That email already has an account.', 'auth/weak-password': 'Use at least 6 characters.',
+  'auth/too-many-requests': 'Too many tries. Wait a minute and try again.', 'auth/network-request-failed': 'No internet connection.',
+  'permission-denied': 'This account is not allowed to do that.',
+}[e.code] || e.message);
+
+const MENU = await fetch('./menu.json').then(r => r.json());
+const MENU_URL = MENU.shop.url.replace(/\/?$/, '/');
+$('#shopName').textContent = MENU.shop.name_en;
+
+const VIEWS = { vLogin: 0, vSetup: 0, vNo: 0, vOrders: 1, vBills: 1, vMenu: 2, vTables: 2, vStaff: 2, vSales: 2 };
+const TABS = [['vOrders', 'Orders'], ['vBills', 'Bills'], ['vMenu', 'Menu', 1], ['vTables', 'Tables & QR', 1], ['vStaff', 'Staff', 1], ['vSales', 'Sales', 1]];
+let me = null, shop = null, cfgMenu = { soldOut: [], prices: {} }, orders = [], staff = [], tab = 'vOrders', subs = [];
+function show(v) {
+  $('#loading').hidden = true;
+  for (const id in VIEWS) $('#' + id).hidden = id !== v;
+  $('#hdr').hidden = !VIEWS[v];
+  if (VIEWS[v]) { tab = v; try { localStorage.setItem('tab', v); } catch (e) {} renderNav(); }
+}
+function renderNav() {
+  const n = orders.filter(o => o.status === 'new').length;
+  $('#nav').innerHTML = TABS.filter(t => !t[2] || me?.role === 'admin')
+    .map(([id, label]) => `<button role="tab" data-v="${id}" aria-selected="${id === tab}">${label}${id === 'vOrders' && n ? `<span class="badge">${n}</span>` : ''}</button>`).join('');
+  document.title = (n ? `(${n}) ` : '') + 'Angaar Counter';
+}
+$('#nav').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { show(b.dataset.v); renderAll(); } };
+document.addEventListener('click', e => { if (e.target.closest('[data-out]')) signOut(auth); });
+$('#outBtn').onclick = () => signOut(auth);
+
+/* ---------- who is signed in ---------- */
+onAuthStateChanged(auth, async u => {
+  subs.forEach(f => f()); subs = []; me = null; orders = []; staff = [];
+  shop = (await getDoc(doc(db, 'config', 'shop')).catch(() => null))?.data() || null;
+  if (!u || u.isAnonymous) return show(shop ? 'vLogin' : 'vSetup');
+  const s = await getDoc(doc(db, 'staff', u.uid)).catch(() => null);
+  if (!s?.exists()) {
+    if (!shop) return show('vSetup');
+    $('#noMsg').textContent = `${u.email} is not on the staff list. Ask the owner to add you.`; return show('vNo');
+  }
+  if (!s.data().active) { $('#noMsg').textContent = 'This account has been switched off by the owner.'; return show('vNo'); }
+  me = { uid: u.uid, ...s.data() };
+  $('#who').textContent = `${me.name} · ${me.role === 'admin' ? 'Owner' : 'Counter'}${EMU ? ' · TEST DATABASE' : ''}`;
+  startLive();
+  let saved = 'vOrders'; try { saved = localStorage.getItem('tab') || saved; } catch (e) {}
+  show(VIEWS[saved] === 2 && me.role !== 'admin' ? 'vOrders' : VIEWS[saved] ? saved : 'vOrders');
+  renderAll();
+});
+
+$('#loginF').onsubmit = async e => {
+  e.preventDefault(); const f = new FormData(e.target); $('#loginErr').textContent = '';
+  try { await signInWithEmailAndPassword(auth, f.get('email').trim(), f.get('pw')); } catch (err) { $('#loginErr').textContent = friendly(err); }
+};
+$('#forgotBtn').onclick = async () => {
+  const email = $('#loginF').email.value.trim();
+  if (!email) return $('#loginErr').textContent = 'Type your email first, then tap Forgot password.';
+  try { await sendPasswordResetEmail(auth, email); $('#loginErr').textContent = ''; toast('Reset link sent to ' + email); } catch (err) { $('#loginErr').textContent = friendly(err); }
+};
+$('#setupF').onsubmit = async e => {
+  e.preventDefault(); const f = new FormData(e.target), email = f.get('email').trim(), btn = e.target.querySelector('button');
+  $('#setupErr').textContent = ''; btn.disabled = true;
+  try {
+    let cred;
+    try { cred = await createUserWithEmailAndPassword(auth, email, f.get('pw')); }
+    catch (err) { if (err.code !== 'auth/email-already-in-use') throw err; cred = await signInWithEmailAndPassword(auth, email, f.get('pw')); }
+    const b = writeBatch(db);
+    b.set(doc(db, 'staff', cred.user.uid), { name: f.get('name').trim(), email, role: 'admin', active: true, createdAt: serverTimestamp() });
+    b.set(doc(db, 'config', 'shop'), { name: MENU.shop.name_en, tables: Math.max(1, Math.min(200, +f.get('tables') || 12)), open: true });
+    await b.commit();
+    await setDoc(doc(db, 'config', 'menu'), { soldOut: [], prices: {} });
+    location.reload();
+  } catch (err) { $('#setupErr').textContent = friendly(err); btn.disabled = false; }
+};
+
+/* ---------- live data ---------- */
+let seen = null, sound = false, actx = null;
+function beep() {
+  if (!sound || !actx) return;
+  [0, .18].forEach(d => { const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = 880; o.connect(g); g.connect(actx.destination);
+    g.gain.setValueAtTime(.0001, actx.currentTime + d); g.gain.exponentialRampToValueAtTime(.3, actx.currentTime + d + .02); g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + d + .15);
+    o.start(actx.currentTime + d); o.stop(actx.currentTime + d + .16); });
+}
+$('#soundBtn').onclick = () => { sound = !sound; if (sound) { actx = actx || new AudioContext(); actx.resume(); beep(); } $('#soundBtn').textContent = sound ? 'Sound on' : 'Sound off'; };
+
+function startLive() {
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  subs.push(onSnapshot(query(collection(db, 'orders'), where('createdAt', '>=', Timestamp.fromDate(start)), orderBy('createdAt')), qs => {
+    orders = qs.docs.map(d => ({ id: d.id, no: d.id.slice(-4).toUpperCase(), ...d.data({ serverTimestamps: 'estimate' }) }));
+    const ids = new Set(orders.filter(o => o.status === 'new').map(o => o.id));
+    const fresh = seen ? [...ids].filter(i => !seen.has(i)) : [];
+    seen = ids; if (fresh.length) { beep(); toast(fresh.length === 1 ? 'New order' : fresh.length + ' new orders'); }
+    renderAll(new Set(fresh));
+  }, err => toast(friendly(err))));
+  subs.push(onSnapshot(doc(db, 'config', 'shop'), d => { shop = d.data() || shop; renderAll(); }));
+  subs.push(onSnapshot(doc(db, 'config', 'menu'), d => { cfgMenu = { soldOut: [], prices: {}, ...d.data() }; if (tab !== 'vMenu' || !menuDirty) renderMenuTab(); }));
+  if (me.role === 'admin') subs.push(onSnapshot(collection(db, 'staff'), qs => { staff = qs.docs.map(d => ({ uid: d.id, ...d.data() })); renderStaff(); }));
+}
+setInterval(() => { if (me && tab === 'vOrders') renderOrders(); }, 30000);
+
+function renderAll(fresh) {
+  if (!me) return;
+  renderNav();
+  const sw = $('#openSw'); sw.classList.toggle('on', !!shop?.open); sw.querySelector('span').textContent = shop?.open ? 'Taking orders' : 'Closed';
+  sw.disabled = me.role !== 'admin'; sw.title = me.role === 'admin' ? 'Tap to open or close ordering' : 'Only the owner can change this';
+  if (tab === 'vOrders') renderOrders(fresh);
+  if (tab === 'vBills') renderBills();
+  if (tab === 'vMenu' && !menuDirty) renderMenuTab();
+  if (tab === 'vTables') renderTables();
+  if (tab === 'vStaff') renderStaff();
+  if (tab === 'vSales') renderSales();
+}
+$('#openSw').onclick = async () => {
+  if (me?.role !== 'admin') return;
+  try { await updateDoc(doc(db, 'config', 'shop'), { open: !shop.open }); toast(shop.open ? 'Ordering closed' : 'Now taking orders'); } catch (e) { toast(friendly(e)); }
+};
+
+/* ---------- orders board ---------- */
+const ago = o => { const m = Math.round((Date.now() - (o.createdAt?.toMillis?.() ?? Date.now())) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : Math.floor(m / 60) + ' h ' + (m % 60) + ' min ago'; };
+const clock = o => o.createdAt?.toDate ? o.createdAt.toDate().toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }) : '';
+const NEXT = { new: [['accepted', 'Accept', 'alt'], ['cancelled', 'Reject', 'ghost']], accepted: [['ready', 'Mark ready', 'alt']], ready: [['served', 'Served', 'alt']] };
+function card(o, fresh) {
+  return `<article class="o ${o.status}${fresh?.has(o.id) ? ' fresh' : ''}">
+    <div class="oh"><span class="tno">T${esc(o.table)}</span><span class="meta">#${esc(o.no)} · ${clock(o)} · ${ago(o)}</span>${o.paid ? '<span class="tag paid">Paid</span>' : ''}</div>
+    <ul>${(o.items || []).map(i => `<li><b>${esc(i.q)} ×</b> ${esc(i.n)} (${esc(i.s)})${i.d ? `<small>${esc(i.d)}</small>` : ''}</li>`).join('')}</ul>
+    ${o.note ? `<div class="note">Note: ${esc(o.note)}</div>` : ''}
+    <div class="ob"><span class="tot">${rs(o.total)}</span>
+      ${(NEXT[o.status] || []).map(([s, l, c]) => `<button class="btn sm ${c}" data-id="${esc(o.id)}" data-s="${s}">${l}</button>`).join('')}
+      <button class="btn sm ghost" data-id="${esc(o.id)}" data-paid="${o.paid ? 0 : 1}">${o.paid ? 'Unpay' : 'Paid'}</button>
+    </div></article>`;
+}
+function renderOrders(fresh) {
+  const col = (st, el, n) => { const l = orders.filter(o => o.status === st); $(n).textContent = l.length || ''; $(el).innerHTML = l.map(o => card(o, fresh)).join('') || '<p class="empty">Nothing here</p>'; };
+  col('new', '#cNew', '#nNew'); col('accepted', '#cAcc', '#nAcc'); col('ready', '#cRdy', '#nRdy');
+}
+async function setOrder(id, patch, btn) {
+  if (btn) btn.disabled = true;
+  try { await updateDoc(doc(db, 'orders', id), { ...patch, updatedAt: serverTimestamp(), by: me.name }); }
+  catch (e) { toast(friendly(e)); if (btn) btn.disabled = false; }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('button[data-id]'); if (!b) return;
+  if (b.dataset.s) setOrder(b.dataset.id, { status: b.dataset.s }, b);
+  else if (b.dataset.paid) setOrder(b.dataset.id, { paid: b.dataset.paid === '1' }, b);
+});
+
+/* ---------- bills ---------- */
+function renderBills() {
+  const live = orders.filter(o => o.status !== 'cancelled');
+  const open = {}; live.filter(o => !o.paid).forEach(o => (open[o.table] ||= []).push(o));
+  $('#bills').innerHTML = Object.keys(open).sort((a, b) => a - b).map(tn => {
+    const l = open[tn], sum = l.reduce((a, o) => a + o.total, 0), waiting = l.some(o => o.status !== 'served');
+    return `<div class="card bill"><h3><span>Table ${esc(tn)}</span><span>${rs(sum)}</span></h3>
+      <div class="rows">${l.map(o => `<div><span>#${esc(o.no)} · ${clock(o)}</span><span>${o.status === 'served' ? '' : `<span class="tag">${o.status}</span> `}${rs(o.total)}</span></div>`).join('')}</div>
+      <p class="mut" style="margin:4px 0 10px;font-size:.85rem">${waiting ? 'Some food is still on its way.' : 'Everything served.'}</p>
+      <button class="btn alt" data-paytbl="${esc(tn)}" style="width:100%">Mark table ${esc(tn)} paid · ${rs(sum)}</button></div>`;
+  }).join('') || '<p class="empty">No open bills</p>';
+  $('#paidRows').innerHTML = live.filter(o => o.paid).reverse().map(o => `<tr><td>${clock(o)}</td><td>T${esc(o.table)}</td><td>#${esc(o.no)}</td><td>${rs(o.total)}</td><td>${esc(o.status)}</td>
+    <td><button class="btn sm ghost" data-id="${esc(o.id)}" data-paid="0">Undo</button></td></tr>`).join('') || '<tr><td colspan="6" class="mut">Nothing paid yet today</td></tr>';
+}
+$('#bills').addEventListener('click', async e => {
+  const b = e.target.closest('[data-paytbl]'); if (!b) return; b.disabled = true;
+  const batch = writeBatch(db);
+  orders.filter(o => String(o.table) === b.dataset.paytbl && !o.paid && o.status !== 'cancelled')
+    .forEach(o => batch.update(doc(db, 'orders', o.id), { paid: true, updatedAt: serverTimestamp(), by: me.name }));
+  try { await batch.commit(); toast('Table ' + b.dataset.paytbl + ' paid'); } catch (err) { toast(friendly(err)); b.disabled = false; }
+});
+
+/* ---------- owner: menu ---------- */
+let menuDirty = false;
+function renderMenuTab() {
+  if (me?.role !== 'admin') return;
+  const so = new Set(cfgMenu.soldOut);
+  $('#pzRows').innerHTML = MENU.pizzas.map(p => `<tr><td><b>${esc(p.name_en)}</b> <span class="mut">${p.veg ? 'Veg' : 'Non-veg'}</span></td>
+    <td><input type="number" min="1" max="5000" data-price="${p.id}" value="${cfgMenu.prices[p.id] || p.price}" aria-label="${esc(p.name_en)} price"></td>
+    <td><input type="checkbox" data-so="${p.id}" ${so.has(p.id) ? 'checked' : ''} aria-label="${esc(p.name_en)} sold out"></td></tr>`).join('');
+  $('#tpRows').innerHTML = MENU.toppings.map(a => `<label style="display:flex;align-items:center;gap:8px;font-weight:600"><input type="checkbox" data-so="${a[0]}" ${so.has(a[0]) ? 'checked' : ''}>${esc(a[1])} sold out</label>`).join('');
+  menuDirty = false; $('#saveMenu').disabled = true;
+}
+$('#vMenu').addEventListener('input', () => { menuDirty = true; $('#saveMenu').disabled = false; });
+$('#saveMenu').onclick = async () => {
+  const prices = {}, soldOut = [...document.querySelectorAll('#vMenu [data-so]:checked')].map(i => i.dataset.so);
+  for (const i of document.querySelectorAll('[data-price]')) {
+    const v = Math.round(+i.value), base = MENU.pizzas.find(p => p.id === i.dataset.price).price;
+    if (!(v >= 1 && v <= 5000)) return toast('Check the price for ' + i.dataset.price);
+    if (v !== base) prices[i.dataset.price] = v;
+  }
+  try { await setDoc(doc(db, 'config', 'menu'), { soldOut, prices }); menuDirty = false; toast('Menu saved. Phones update straight away.'); renderMenuTab(); } catch (e) { toast(friendly(e)); }
+};
+
+/* ---------- owner: tables and QR codes ---------- */
+function renderTables() {
+  const n = shop?.tables || 0; if (document.activeElement !== $('#tblN')) $('#tblN').value = n;
+  if ($('#qrs').dataset.n == n) return; $('#qrs').dataset.n = n;
+  $('#qrs').innerHTML = Array.from({ length: n }, (_, i) => {
+    const url = MENU_URL + '?t=' + (i + 1); let svg = '';
+    if (window.qrcode) { const q = qrcode(0, 'M'); q.addData(url); q.make(); svg = q.createSvgTag({ cellSize: 5, margin: 0, scalable: true }); }
+    return `<div class="qr"><b>Table ${i + 1}</b>${svg}<small>Scan to see the menu and order</small><small>${esc(MENU.shop.name_en)}</small></div>`;
+  }).join('');
+}
+$('#saveTbl').onclick = async () => {
+  const n = Math.round(+$('#tblN').value); if (!(n >= 1 && n <= 200)) return toast('Use a number from 1 to 200');
+  try { await updateDoc(doc(db, 'config', 'shop'), { tables: n }); toast('Saved ' + n + ' tables'); } catch (e) { toast(friendly(e)); }
+};
+$('#printBtn').onclick = () => window.print();
+
+/* ---------- owner: staff ---------- */
+function renderStaff() {
+  if (me?.role !== 'admin' || tab !== 'vStaff') return;
+  $('#staffRows').innerHTML = staff.sort((a, b) => a.name.localeCompare(b.name)).map(s => {
+    const self = s.uid === me.uid;
+    return `<tr><td><b>${esc(s.name)}</b>${self ? ' <span class="mut">(you)</span>' : ''}</td><td>${esc(s.email)}</td>
+      <td>${self ? (s.role === 'admin' ? 'Owner' : 'Counter') : `<select data-role="${s.uid}" aria-label="Role for ${esc(s.name)}"><option value="counter" ${s.role === 'counter' ? 'selected' : ''}>Counter</option><option value="admin" ${s.role === 'admin' ? 'selected' : ''}>Owner / admin</option></select>`}</td>
+      <td>${self ? 'On' : `<button class="btn sm ${s.active ? 'ghost' : 'alt'}" data-act="${s.uid}" data-on="${s.active ? 0 : 1}">${s.active ? 'Switch off' : 'Switch on'}</button>`}</td>
+      <td><button class="btn sm ghost" data-reset="${esc(s.email)}">Send password reset</button></td></tr>`;
+  }).join('');
+}
+$('#staffRows').addEventListener('change', async e => {
+  const s = e.target.closest('[data-role]'); if (!s) return;
+  try { await updateDoc(doc(db, 'staff', s.dataset.role), { role: s.value }); toast('Role changed'); } catch (err) { toast(friendly(err)); }
+});
+$('#staffRows').addEventListener('click', async e => {
+  const a = e.target.closest('[data-act]'), r = e.target.closest('[data-reset]');
+  try {
+    if (a) { await updateDoc(doc(db, 'staff', a.dataset.act), { active: a.dataset.on === '1' }); toast(a.dataset.on === '1' ? 'Access switched on' : 'Access switched off'); }
+    if (r) { await sendPasswordResetEmail(auth, r.dataset.reset); toast('Reset link sent to ' + r.dataset.reset); }
+  } catch (err) { toast(friendly(err)); }
+});
+$('#addF').onsubmit = async e => {
+  e.preventDefault(); const f = new FormData(e.target), btn = e.target.querySelector('button'), email = f.get('email').trim();
+  $('#addErr').textContent = ''; btn.disabled = true;
+  const a2 = secondaryAuth();
+  try {
+    const cred = await createUserWithEmailAndPassword(a2, email, f.get('pw'));
+    await setDoc(doc(db, 'staff', cred.user.uid), { name: f.get('name').trim(), email, role: f.get('role'), active: true, createdAt: serverTimestamp() });
+    e.target.reset(); toast('Added ' + email + '. Give them the password in person.');
+  } catch (err) { $('#addErr').textContent = friendly(err); }
+  finally { signOut(a2).catch(() => {}); btn.disabled = false; }
+};
+
+/* ---------- owner: today's sales ---------- */
+function renderSales() {
+  const live = orders.filter(o => o.status !== 'cancelled'), sum = l => l.reduce((a, o) => a + o.total, 0);
+  const paid = live.filter(o => o.paid);
+  $('#kpis').innerHTML = [[rs(sum(live)), 'Sales today'], [live.length, 'Orders'], [rs(live.length ? Math.round(sum(live) / live.length) : 0), 'Average order'],
+    [rs(sum(paid)), 'Collected'], [rs(sum(live) - sum(paid)), 'Still to collect'], [orders.length - live.length, 'Cancelled']]
+    .map(([v, l]) => `<div class="card kpi"><b>${v}</b><span>${l}</span></div>`).join('');
+  const items = {}; live.forEach(o => (o.items || []).forEach(i => { const k = i.n + ' (' + i.s + ')'; items[k] ||= [0, 0]; items[k][0] += i.q; items[k][1] += i.q * i.p; }));
+  $('#topRows').innerHTML = Object.entries(items).sort((a, b) => b[1][0] - a[1][0]).slice(0, 12).map(([k, [q, v]]) => `<tr><td>${esc(k)}</td><td>${q}</td><td>${rs(v)}</td></tr>`).join('') || '<tr><td colspan="3" class="mut">No orders yet</td></tr>';
+  const bt = {}; live.forEach(o => { bt[o.table] ||= [0, 0]; bt[o.table][0]++; bt[o.table][1] += o.total; });
+  $('#byTbl').innerHTML = Object.entries(bt).sort((a, b) => a[0] - b[0]).map(([k, [n, v]]) => `<tr><td>Table ${esc(k)}</td><td>${n}</td><td>${rs(v)}</td></tr>`).join('') || '<tr><td colspan="3" class="mut">No orders yet</td></tr>';
+}
+</script>
+</body>
+</html>

@@ -44,7 +44,24 @@ main{max-width:1100px;margin:auto;padding-block:16px;padding-left:max(16px,env(s
 .price{font-size:1.25rem;font-family:"Baloo 2",sans-serif}
 .btn{min-height:44px;padding:8px 20px;border-radius:14px;background:var(--red);color:#fff;font-weight:800}
 .btn.ghost{background:var(--mint);color:var(--ink)}
-.btn.wa{background:#128c4a;width:100%;display:block;text-align:center;text-decoration:none;line-height:28px}
+.btn.go{width:100%;display:block;min-height:54px;font-size:1.05rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.fld{display:grid;gap:4px;margin-bottom:12px;font-weight:700;font-size:.9rem}
+.fld select,.fld textarea{font:inherit;font-weight:400;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-height:46px;width:100%}
+.msg{margin:10px 0 0;font-size:.9rem;color:var(--mut);text-align:center}
+.msg.err{color:var(--red);font-weight:700}
+.tblno{display:inline-block;background:var(--red);color:#fff;border-radius:8px;padding:0 8px;margin-right:6px;font-weight:800}
+.sold{position:relative}.sold .pz{filter:grayscale(1) opacity(.55)}
+.oc{border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.oc h3{font-size:1rem;display:flex;justify-content:space-between;gap:8px}
+.oc ul{margin:6px 0;padding-left:18px;font-size:.9rem}
+.steps{display:flex;gap:4px;margin:10px 0 4px}
+.steps i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.steps i.on{background:var(--mint2)}
+.stx{font-weight:800;color:var(--mint2)}
+.oc.cx{opacity:.6}.oc.cx .stx{color:var(--red)}
+.linkbtn{color:var(--red);font-weight:700;text-decoration:underline;min-height:40px}
+@media(max-width:430px){#fsBtn{display:none}}
 
 /* pizza */
 .pz{position:relative;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#e6b56c 0 60%,#d89a4c 86%,#b9742f 94%,#9a5c22 100%);box-shadow:0 8px 14px rgba(0,0,0,.22);transition:filter .8s}
@@ -154,6 +171,7 @@ dialog::backdrop{background:rgba(8,20,16,.55);backdrop-filter:blur(3px)}
   <div class="bar">
     <div class="brand"><h1 id="shop"></h1><p id="tag"></p></div>
     <button class="hb" id="langBtn" aria-label="Switch language"></button>
+    <button class="hb" id="myBtn" hidden></button>
     <button class="hb" id="qrBtn">QR</button>
     <button class="hb" id="fsBtn">⛶</button>
   </div>
@@ -196,7 +214,15 @@ dialog::backdrop{background:rgba(8,20,16,.55);backdrop-filter:blur(3px)}
   <div class="dh"><h2 id="cartH"></h2><button class="x" data-close aria-label="Close">×</button></div>
   <div id="lines"></div>
   <div class="sum"><span id="sumL"></span><span id="sumR"></span></div>
-  <a class="btn wa" id="waBtn" target="_blank" rel="noopener"></a>
+  <label class="fld" id="tblWrap" hidden><span id="tblL"></span><select id="tblSel"></select></label>
+  <label class="fld"><span id="noteL"></span><textarea id="note" maxlength="200" rows="2"></textarea></label>
+  <button class="btn go" id="orderBtn"></button>
+  <p class="msg" id="ordMsg" role="status"></p>
+</dialog>
+
+<dialog id="myDlg" aria-labelledby="myH">
+  <div class="dh"><h2 id="myH"></h2><button class="x" data-close aria-label="Close">×</button></div>
+  <div id="myList"></div>
 </dialog>
 
 <dialog id="qrDlg" aria-labelledby="qrH">
@@ -214,7 +240,7 @@ dialog::backdrop{background:rgba(8,20,16,.55);backdrop-filter:blur(3px)}
 
 <script id="data" type="application/json">
 {
-"shop":{"name_en":"Angaar Pizza Co.","name_hi":"अंगार पिज़्ज़ा कं.","tag_en":"Fire-baked, made to order","tag_hi":"आँच पर सिका, ऑर्डर पर ताज़ा","wa":"917737693891","url":"https://madhavmongaa.github.io/angaar-pizza-menu/"},
+"shop":{"name_en":"Angaar Pizza Co.","name_hi":"अंगार पिज़्ज़ा कं.","tag_en":"Fire-baked, made to order","tag_hi":"आँच पर सिका, ऑर्डर पर ताज़ा","url":"https://madhavmongaa.github.io/angaar-pizza-menu/"},
 "base":249,
 "sizes":[{"en":"Regular","hi":"रेगुलर","mult":1,"sz":68},{"en":"Medium","hi":"मीडियम","mult":1.45,"sz":84},{"en":"Large","hi":"लार्ज","mult":1.9,"sz":100}],
 "sauces":[
@@ -280,11 +306,28 @@ const A=JSON.parse($('#assets').textContent),PH=!!A.cheese;            // photos
 const SZ={'red-onion':17,'white-onion':17,'green-capsicum':20,'red-capsicum':20,'yellow-capsicum':20,mushroom:14,'black-olives':8,'green-olives':8,'sweet-corn':4.5,tomato:16,'cherry-tomato':9,jalapeno:9,paneer:9,'tandoori-paneer':10,spinach:15,pineapple:9,basil:14,broccoli:11,pepperoni:14,'chicken-tikka':11,'grilled-chicken':16,'chicken-sausage':11,bacon:17,salami:16,'mutton-keema':10,prawns:13,'extra-cheese':14,feta:9,'chili-flakes':9,'roasted-garlic':9};
 const NP={'sweet-corn':12,'black-olives':8,'green-olives':8,'chili-flakes':7,tomato:5,salami:5,bacon:5,'red-onion':5,'white-onion':5};
 const STR={
- en:{menu:'Menu',build:'Make your own',all:'All',veg:'Veg',non:'Non-veg',add:'Add',cart:'Your order',total:'Total',wa:'Order on WhatsApp',view:'View order',item:'item',items:'items',qr:'Scan to open this menu',sauce:'Sauce',size:'Size',g_veg:'Veg toppings',g_nonveg:'Non-veg toppings',g_finisher:'Finishers',bake:'Bake',reset:'Start over',addc:'Add to order',custom:'Custom pizza',hint:'Tap a topping, or drag its picture onto the pizza. Up to 3 layers each.',noqr:'The QR code needs an internet connection the first time.',remove:'Remove one layer of',added:'Added to order',layer:'per layer',lang:'हिंदी',fs:'Full screen'},
- hi:{menu:'मेन्यू',build:'अपना पिज़्ज़ा बनाओ',all:'सभी',veg:'वेज',non:'नॉन-वेज',add:'जोड़ें',cart:'आपका ऑर्डर',total:'कुल',wa:'WhatsApp पर ऑर्डर करें',view:'ऑर्डर देखें',item:'आइटम',items:'आइटम',qr:'मेन्यू खोलने के लिए स्कैन करें',sauce:'सॉस',size:'साइज़',g_veg:'वेज टॉपिंग',g_nonveg:'नॉन-वेज टॉपिंग',g_finisher:'फिनिशर',bake:'बेक करें',reset:'फिर से शुरू',addc:'ऑर्डर में जोड़ें',custom:'कस्टम पिज़्ज़ा',hint:'टॉपिंग पर टैप करें, या उसकी तस्वीर पिज़्ज़ा पर खींचें। हर टॉपिंग 3 बार तक।',noqr:'पहली बार QR कोड के लिए इंटरनेट चाहिए।',remove:'एक परत हटाएँ:',added:'ऑर्डर में जुड़ गया',layer:'हर परत',lang:'English',fs:'फ़ुल स्क्रीन'}};
+ en:{menu:'Menu',build:'Make your own',all:'All',veg:'Veg',non:'Non-veg',add:'Add',cart:'Your order',total:'Total',order:'Send order to counter',table:'Table',pickT:'Choose your table',note:'Note for the kitchen (optional)',sending:'Sending…',sent:'Order sent! The counter has it.',closed:'Sorry, we are not taking orders right now.',offline:'Ordering works on the live menu:',myorders:'Your orders',st_new:'Sent to counter',st_accepted:'Being made',st_ready:'Ready',st_served:'Served',st_cancelled:'Cancelled',cancel:'Cancel order',soldout:'Sold out',err:'Could not send. Check your internet and try again.',paid:'Paid',unpaid:'Pay at the counter',ordno:'Order',connecting:'Connecting…',view:'View order',item:'item',items:'items',qr:'Scan to open this menu',sauce:'Sauce',size:'Size',g_veg:'Veg toppings',g_nonveg:'Non-veg toppings',g_finisher:'Finishers',bake:'Bake',reset:'Start over',addc:'Add to order',custom:'Custom pizza',hint:'Tap a topping, or drag its picture onto the pizza. Up to 3 layers each.',noqr:'The QR code needs an internet connection the first time.',remove:'Remove one layer of',added:'Added to order',layer:'per layer',lang:'हिंदी',fs:'Full screen'},
+ hi:{menu:'मेन्यू',build:'अपना पिज़्ज़ा बनाओ',all:'सभी',veg:'वेज',non:'नॉन-वेज',add:'जोड़ें',cart:'आपका ऑर्डर',total:'कुल',order:'काउंटर पर ऑर्डर भेजें',table:'टेबल',pickT:'अपनी टेबल चुनें',note:'किचन के लिए नोट (ज़रूरी नहीं)',sending:'भेज रहे हैं…',sent:'ऑर्डर भेज दिया! काउंटर को मिल गया।',closed:'माफ़ कीजिए, अभी ऑर्डर नहीं ले रहे।',offline:'ऑर्डर लाइव मेन्यू पर होता है:',myorders:'आपके ऑर्डर',st_new:'काउंटर को भेजा',st_accepted:'बन रहा है',st_ready:'तैयार',st_served:'परोसा गया',st_cancelled:'रद्द',cancel:'ऑर्डर रद्द करें',soldout:'ख़त्म',err:'भेज नहीं पाए। इंटरनेट देखें और फिर कोशिश करें।',paid:'भुगतान हो गया',unpaid:'काउंटर पर भुगतान करें',ordno:'ऑर्डर',connecting:'जुड़ रहे हैं…',view:'ऑर्डर देखें',item:'आइटम',items:'आइटम',qr:'मेन्यू खोलने के लिए स्कैन करें',sauce:'सॉस',size:'साइज़',g_veg:'वेज टॉपिंग',g_nonveg:'नॉन-वेज टॉपिंग',g_finisher:'फिनिशर',bake:'बेक करें',reset:'फिर से शुरू',addc:'ऑर्डर में जोड़ें',custom:'कस्टम पिज़्ज़ा',hint:'टॉपिंग पर टैप करें, या उसकी तस्वीर पिज़्ज़ा पर खींचें। हर टॉपिंग 3 बार तक।',noqr:'पहली बार QR कोड के लिए इंटरनेट चाहिए।',remove:'एक परत हटाएँ:',added:'ऑर्डर में जुड़ गया',layer:'हर परत',lang:'English',fs:'फ़ुल स्क्रीन'}};
 let lang='en';try{lang=localStorage.getItem('lang')||'en'}catch(e){}
 const t=k=>STR[lang][k];
 let filter='all',cart=[];const sel={};
+/* ---------- live shop state (filled in by the module script at the bottom) ---------- */
+const BASEPRICE=Object.fromEntries(D.pizzas.map(p=>[p.id,p.price]));
+const LIVE={ready:false,offline:false,open:true,tables:12,soldOut:[],mine:[],sending:false,msg:'',err:false};
+const isSold=id=>LIVE.soldOut.includes(id);
+let TABLE=null;
+try{const q=+new URLSearchParams(location.search).get('t');if(q>0){TABLE=q;sessionStorage.setItem('table',q)}else TABLE=+sessionStorage.getItem('table')||null}catch(e){}
+window.APP={
+  live(shop,menu){
+    if(shop){LIVE.open=!!shop.open;LIVE.tables=shop.tables||12}
+    if(menu){LIVE.soldOut=menu.soldOut||[];D.pizzas.forEach(p=>p.price=(menu.prices||{})[p.id]||BASEPRICE[p.id])}
+    LIVE.ready=true;renderAll();
+  },
+  mine(list){LIVE.mine=list;renderMine()},
+  offline(){LIVE.offline=true;renderOrderBox()},
+  refresh(){renderOrderBox()},
+  sendHook:null,cancelHook:null
+};
 const B={size:1,sauce:'tomato',layers:{},pieces:[]};
 
 /* ---------- pizza drawing ---------- */
@@ -327,13 +370,13 @@ function renderMenu(){
   $('#filters').innerHTML=['all','veg','non'].map(f=>`<button class="pill" aria-pressed="${f===filter}" data-f="${f}">${t(f)}</button>`).join('');
   const g=$('#grid');g.innerHTML='';
   D.pizzas.filter(p=>filter==='all'||(filter==='veg')===p.veg).forEach(p=>{
-    const s=sel[p.id]||0,c=document.createElement('article');c.className='card';
+    const s=sel[p.id]||0,so=isSold(p.id),c=document.createElement('article');c.className='card'+(so?' sold':'');
     const ph=A.pizza&&A.pizza[p.id];
     c.innerHTML=`${ph?`<img class="pz ph" src="${ph}" alt="${p['name_'+lang]}" tabindex="0" role="button">`:`<div class="pz" role="button" tabindex="0" aria-label="${p['name_'+lang]}"></div>`}
       <h3><span class="mark ${p.veg?'v':'n'}" role="img" aria-label="${t(p.veg?'veg':'non')}"></span>${p['name_'+lang]}</h3>
       <p class="desc">${p['desc_'+lang]}</p>
       <div class="pills" role="group" aria-label="${t('size')}">${D.sizes.map((z,i)=>`<button class="pill" aria-pressed="${i===s}" data-i="${i}">${z[lang]}</button>`).join('')}</div>
-      <div class="row"><b class="price">₹${price(p,s)}</b><button class="btn">${t('add')}</button></div>`;
+      <div class="row"><b class="price">₹${price(p,s)}</b><button class="btn"${so?' disabled':''}>${t(so?'soldout':'add')}</button></div>`;
     const pe=c.firstElementChild;
     if(!ph)drawPizza(pe,p.sauce,p.toppings,hash(p.id));
     pe.onclick=()=>openZoom(p,pe,false);
@@ -357,7 +400,7 @@ function openZoom(p,src,byHover){
   const tops=document.createElement('div');tops.className='tops';spin.replaceChildren(el,tops);
   $('#zName').textContent=p['name_'+lang];$('#zDesc').textContent=p['desc_'+lang];
   $('#zPrice').textContent='₹'+price(p,s)+' · '+D.sizes[s][lang];
-  $('#zAdd').textContent=t('add');
+  $('#zAdd').textContent=t(isSold(p.id)?'soldout':'add');$('#zAdd').disabled=isSold(p.id);
   $('#zAdd').onclick=()=>{addCart({key:p.id+'|'+s,en:p.name_en,hi:p.name_hi,size:s,price:price(p,s)});z.close()};
   zId=p.id;zHover=byHover;
   const a=src.getBoundingClientRect();
@@ -392,14 +435,53 @@ function renderCart(){
   $('#cartH').textContent=t('cart');$('#sumL').textContent=t('total');$('#sumR').textContent='₹'+tot;
   $('#lines').innerHTML=cart.map((c,i)=>`<div class="line"><div><b>${c[lang]}</b> (${D.sizes[c.size][lang]})${c.detail?`<small>${c.detail[lang]}</small>`:''}<small>₹${c.price}</small></div>
     <div class="qty"><button data-i="${i}" data-d="-1" aria-label="−1 ${c[lang]}">−</button><b>${c.q}</b><button data-i="${i}" data-d="1" aria-label="+1 ${c[lang]}">+</button></div><b>₹${c.q*c.price}</b></div>`).join('');
-  // WhatsApp message is in English so any staff member can read it
-  const lines=cart.map(c=>`${c.q} x ${c.en} (${D.sizes[c.size].en})${c.detail?' ['+c.detail.en+']':''} = Rs ${c.q*c.price}`);
-  const w=$('#waBtn');w.textContent=t('wa');
-  w.href='https://wa.me/'+D.shop.wa+'?text='+encodeURIComponent('New order\n'+lines.join('\n')+'\nTotal: Rs '+tot);
+  renderOrderBox();
   if(!n&&$('#cartDlg').open)$('#cartDlg').close();
 }
 $('#lines').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;const c=cart[b.dataset.i];c.q+=+b.dataset.d;if(c.q<1)cart.splice(b.dataset.i,1);renderCart()};
 $('#cartBtn').onclick=()=>$('#cartDlg').showModal();
+
+/* ---------- sending the order to the counter ---------- */
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const okTable=()=>TABLE&&TABLE<=LIVE.tables?TABLE:null;
+function renderOrderBox(){
+  $('#tblL').textContent=t('pickT');$('#noteL').textContent=t('note');
+  const w=$('#tblWrap');w.hidden=!!okTable();
+  if(!w.hidden){const sl=$('#tblSel'),cur=sl.value;sl.innerHTML='<option value="">—</option>'+Array.from({length:LIVE.tables},(_,i)=>`<option value="${i+1}">${t('table')} ${i+1}</option>`).join('');sl.value=cur}
+  const b=$('#orderBtn'),m=$('#ordMsg'),ready=LIVE.ready&&!!APP.sendHook;
+  if(LIVE.offline){b.hidden=true;w.hidden=true;m.className='msg';m.innerHTML=`${t('offline')} <a href="${esc(D.shop.url)}" target="_blank" rel="noopener">${esc(D.shop.url.replace(/^https?:\/\//,''))}</a>`;return}
+  b.hidden=false;
+  b.textContent=LIVE.sending?t('sending'):!ready?t('connecting'):t('order')+' · ₹'+cartTotal();
+  b.disabled=LIVE.sending||!ready||!LIVE.open||!cart.length;
+  m.textContent=ready&&!LIVE.open?t('closed'):LIVE.msg;m.className='msg'+(LIVE.err||(ready&&!LIVE.open)?' err':'');
+}
+$('#orderBtn').onclick=async()=>{
+  const table=okTable()||+$('#tblSel').value;
+  if(!table){LIVE.msg=t('pickT');LIVE.err=true;renderOrderBox();$('#tblSel').focus();return}
+  const items=cart.map(c=>({n:c.en,s:D.sizes[c.size].en,q:c.q,p:c.price,d:c.detail?c.detail.en:''}));
+  LIVE.sending=true;LIVE.msg='';LIVE.err=false;renderOrderBox();
+  try{
+    await Promise.race([APP.sendHook({table,items,total:cartTotal(),note:$('#note').value.trim().slice(0,200)}),new Promise((_,no)=>setTimeout(()=>no(new Error('timeout')),15000))]);
+    if(!okTable()){TABLE=table;try{sessionStorage.setItem('table',table)}catch(e){}}
+    cart=[];$('#note').value='';LIVE.sending=false;renderAll();toast(t('sent'));
+    if(!$('#myDlg').open)$('#myDlg').showModal();
+  }catch(e){console.error(e);LIVE.sending=false;LIVE.msg=t(LIVE.open?'err':'closed');LIVE.err=true;renderOrderBox()}
+};
+const ST=['new','accepted','ready','served'];
+function renderMine(){
+  const list=LIVE.mine,active=list.filter(o=>!['served','cancelled'].includes(o.status)).length;
+  const b=$('#myBtn');b.hidden=!list.length;b.textContent=t('myorders')+(active?' · '+active:'');
+  $('#myH').textContent=t('myorders');
+  $('#myList').innerHTML=list.map(o=>{const k=ST.indexOf(o.status),cx=o.status==='cancelled';
+    return `<div class="oc${cx?' cx':''}"><h3><span>${t('ordno')} #${esc(o.no)} · ${t('table')} ${esc(o.table)}</span><span>₹${esc(o.total)}</span></h3>
+    <ul>${(o.items||[]).map(i=>`<li>${esc(i.q)} × ${esc(i.n)} (${esc(i.s)})${i.d?` <small>${esc(i.d)}</small>`:''}</li>`).join('')}</ul>
+    ${o.note?`<small>${esc(o.note)}</small>`:''}
+    ${cx?'':`<div class="steps" aria-hidden="true">${ST.map((x,i)=>`<i class="${i<=k?'on':''}"></i>`).join('')}</div>`}
+    <div class="row"><span class="stx">${t('st_'+o.status)}</span><small>${cx?'':t(o.paid?'paid':'unpaid')}</small></div>
+    ${o.status==='new'?`<button class="linkbtn" data-cancel="${esc(o.id)}">${t('cancel')}</button>`:''}</div>`}).join('');
+}
+$('#myBtn').onclick=()=>$('#myDlg').showModal();
+$('#myList').onclick=async e=>{const b=e.target.closest('[data-cancel]');if(!b)return;b.disabled=true;try{await APP.cancelHook(b.dataset.cancel)}catch(err){console.error(err);b.disabled=false;toast(t('err'))}};
 
 /* ---------- builder ---------- */
 const bpz=$('#bpz');
@@ -427,7 +509,7 @@ function renderBuilder(){
     const wrap=document.createElement('div');wrap.className='chips';
     D.toppings.filter(a=>a[3]===g).forEach(a=>{
       const tp=T[a[0]],n=B.layers[tp.id]||0,d=document.createElement('div');d.className='tp';
-      d.innerHTML=`<button class="chip${n?' on':''}" data-id="${tp.id}"><span class="smp"></span><span>${tp[lang]}<small>₹${tp.price} ${t('layer')}</small></span></button>`
+      d.innerHTML=`<button class="chip${n?' on':''}" data-id="${tp.id}"${isSold(tp.id)?' disabled':''}><span class="smp"></span><span>${tp[lang]}<small>${isSold(tp.id)?t('soldout'):'₹'+tp.price+' '+t('layer')}</small></span></button>`
         +(n?`<span class="cnt">${n}</span><button class="minus" data-rm="${tp.id}" aria-label="${t('remove')} ${tp[lang]}">−</button>`:'');
       d.querySelector('.smp').append(pieceNode(tp,()=>0,34,'px','--sw'));
       wrap.append(d);
@@ -437,7 +519,7 @@ function renderBuilder(){
   bSync();
 }
 function addTopping(id){
-  const n=B.layers[id]||0;if(n>=MAX)return;
+  const n=B.layers[id]||0;if(n>=MAX||isSold(id))return;
   B.layers[id]=n+1;bpz.classList.remove('baked');
   const tp=T[id];
   place(perLayer(tp),B.pieces,Math.random).forEach((p,i)=>{
@@ -503,12 +585,36 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
 let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),1400)}
 function renderAll(){
   document.documentElement.lang=lang;document.title=D.shop['name_'+lang];
-  $('#shop').textContent=D.shop['name_'+lang];$('#tag').textContent=D.shop['tag_'+lang];
+  $('#shop').textContent=D.shop['name_'+lang];$('#tag').innerHTML=(okTable()?`<span class="tblno">${t('table')} ${TABLE}</span>`:'')+esc(D.shop['tag_'+lang]);
   $('#langBtn').textContent=t('lang');$('#fsBtn').setAttribute('aria-label',t('fs'));$('#fsBtn').title=t('fs');$('#tabMenu').textContent=t('menu');$('#tabBuild').textContent=t('build');
-  renderMenu();renderBuilder();renderCart();
+  renderMenu();renderBuilder();renderCart();renderMine();
 }
 $('#langBtn').onclick=()=>{lang=lang==='en'?'hi':'en';try{localStorage.setItem('lang',lang)}catch(e){}renderAll()};
 renderAll();
+</script>
+<script type="module">
+// Live link to the shop's database. If it cannot load (no internet, or a host that blocks it), the menu still works for browsing.
+let fb,A,F;
+try{
+  fb=await import('./fb.js');
+  [A,F]=await Promise.all([import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')]);
+}catch(e){APP.offline();throw e}
+const {auth,db}=fb;let shop,menu;
+const push=()=>{if(shop!==undefined&&menu!==undefined)APP.live(shop,menu)};
+F.onSnapshot(F.doc(db,'config','shop'),d=>{shop=d.data()||{open:false,tables:12};push()},e=>{console.error(e);APP.offline()});
+F.onSnapshot(F.doc(db,'config','menu'),d=>{menu=d.data()||{};push()},e=>console.error(e));
+let unsub=null;
+A.onAuthStateChanged(auth,u=>{
+  if(!u){A.signInAnonymously(auth).catch(e=>{console.error(e);APP.offline()});return}
+  if(unsub)unsub();
+  unsub=F.onSnapshot(F.query(F.collection(db,'orders'),F.where('uid','==',u.uid)),qs=>{
+    const since=Date.now()-12*3600e3,ms=o=>o.createdAt?o.createdAt.toMillis():Infinity;
+    APP.mine(qs.docs.map(d=>({id:d.id,no:d.id.slice(-4).toUpperCase(),...d.data({serverTimestamps:'estimate'})})).filter(o=>ms(o)>since).sort((a,b)=>ms(b)-ms(a)));
+  },e=>console.error(e));
+  APP.sendHook=o=>F.addDoc(F.collection(db,'orders'),{...o,status:'new',paid:false,uid:u.uid,createdAt:F.serverTimestamp(),updatedAt:F.serverTimestamp()});
+  APP.cancelHook=id=>F.updateDoc(F.doc(db,'orders',id),{status:'cancelled',updatedAt:F.serverTimestamp()});
+  APP.refresh();
+});
 </script>
 </body>
 </html>

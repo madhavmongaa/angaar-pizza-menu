@@ -184,15 +184,34 @@ def main():
         for x, f in enumerate(sorted(glob.glob(os.path.join(OUT, 'pieces', tid + '-*.webp')))):
             p = Image.open(f).convert('RGBA'); sheet.paste(p, (150 + x * 130 + 5, y * 130 + 5), p)
     sheet.save(os.path.join(OUT, '_check-pieces.jpg'), quality=85)
+    build(A)
+
+
+def build(A):
+    """Put the photos into the menu page and copy the staff site next to it."""
     html = open(TPL, encoding='utf-8').read()
     blob = json.dumps(A, separators=(',', ':'))
     html, n = re.subn(r'(<script id="assets" type="application/json">).*?(</script>)', lambda m: m.group(1) + blob + m.group(2), html, flags=re.S)
+    site = os.path.dirname(SITE)
     if n: open(SITE, 'w', encoding='utf-8').write(html)
     # copy for publishing as a Claude artifact: the host adds its own page skeleton, so strip ours
     art = re.sub(r'<!doctype html>|</?html[^>]*>|</?head>|</?body>|<meta charset[^>]*>|<meta name="viewport"[^>]*>', '', html, flags=re.I)
-    open(os.path.join(os.path.dirname(SITE), 'artifact.html'), 'w', encoding='utf-8').write(art.lstrip())
+    open(os.path.join(site, 'artifact.html'), 'w', encoding='utf-8').write(art.lstrip())
+    # the staff site reads the same menu data
+    data = re.search(r'<script id="data" type="application/json">(.*?)</script>', html, re.S).group(1)
+    json.dump(json.loads(data), open(os.path.join(site, 'menu.json'), 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
+    src = os.path.dirname(TPL)
+    for f in ('staff.html', 'fb.js'):
+        open(os.path.join(site, f), 'w', encoding='utf-8').write(open(os.path.join(src, f), encoding='utf-8').read())
     print('assets', round(len(blob) / 1e6, 2), 'MB', 'embedded' if n else 'NOT embedded')
 
 
+def rebuild_html():
+    """Fast path: reuse the photos already in the built page, so only the HTML changes."""
+    old = open(SITE, encoding='utf-8').read()
+    build(json.loads(re.search(r'<script id="assets" type="application/json">(.*?)</script>', old, re.S).group(1)))
+
+
 if __name__ == '__main__':
-    main()
+    import sys
+    rebuild_html() if '--html' in sys.argv else main()
